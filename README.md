@@ -110,6 +110,4 @@ Early development. The design above is settled; the code is being built in small
 
 Built by [Jamey McElveen](https://jameymcelveen.com), a principal software architect who has been building components since the Delphi days.
 
-## License
-
-[MIT](LICENSE)
+Copyright (c) 2026 Jamey McElveen

@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: jsctrls-demo
+
+server:
+  port: 8081
+
+demo:
+  delay-ms: ${DEMO_DELAY_MS:300}

@@ -1,0 +1,48 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f6f5f2;
+  --fg: #1c1c1a;
+  --muted: #5e5e58;
+  --accent: #1f4b99;
+  --line: #d8d6d0;
+  --danger: #9d1c1c;
+  font:
+    16px/1.5 ui-sans-serif,
+    system-ui,
+    sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #151513;
+    --fg: #f3f2ec;
+    --muted: #a4a399;
+    --accent: #8eafef;
+    --line: #2d2d29;
+    --danger: #f0a3a3;
+  }
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+main {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+p {
+  color: var(--muted);
+}
