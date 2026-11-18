@@ -89,15 +89,15 @@ make check   # lint, typecheck and all tests (what CI runs)
 
 ## Status
 
-Early development. The design above is settled; the code is being built in small, tested steps:
+The hello world is in place: an edit box, a list, Add, and Delete, talking to the Spring Boot names API.
 
-- [ ] Workspace scaffold, Makefile, lint and test setup
-- [ ] Spring Boot demo API with `MockMvc` tests
-- [ ] `memoryConnector` and `restConnector`
-- [ ] DataSet state machine, test-first
-- [ ] `useDataSet` binding
-- [ ] `TextInput`, `Button`, `ListBox`
-- [ ] Hello world, end to end, with Docker Compose
+- [x] Workspace scaffold, Makefile, lint and test setup
+- [x] Spring Boot demo API with `MockMvc` tests
+- [x] `memoryConnector` and `restConnector`
+- [x] DataSet state machine, test-first
+- [x] `useDataSet` binding
+- [x] `TextInput`, `Button`, `ListBox`
+- [x] Hello world, end to end, with Docker Compose
 
 ## What's next
 
