@@ -1,5 +1,7 @@
 export { ConnectorError } from "./connector/connectorError";
 export { createDataSet, DataSetError } from "./dataset/createDataSet";
+export { DataSetProvider, useDataSetContext } from "./react/DataSetProvider";
+export { useDataSet } from "./react/useDataSet";
 export type { DataSet, DataSetSnapshot, DataSetState } from "./dataset/createDataSet";
 export { memoryConnector } from "./connector/memoryConnector";
 export { restConnector } from "./connector/restConnector";
