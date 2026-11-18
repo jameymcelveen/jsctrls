@@ -2,6 +2,7 @@
 
 **Data-aware React controls, inspired by Delphi.**
 
+[![CI](https://github.com/jameymcelveen/jsctrls/actions/workflows/ci.yml/badge.svg)](https://github.com/jameymcelveen/jsctrls/actions/workflows/ci.yml)
 [![Status: early development](https://img.shields.io/badge/status-early%20development-orange)](#status)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![React 18](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)](https://react.dev)
@@ -80,9 +81,10 @@ The demo server is deliberately small and idiomatic: records for DTOs, construct
 ## Getting started
 
 ```sh
+make help    # list every target
 make up      # docker compose: API + app on http://localhost:8080
 make dev     # Spring Boot + Vite dev server, no Docker
-make test    # Vitest and ./mvnw test
+make check   # lint, typecheck and all tests (what CI runs)
 ```
 
 ## Status

@@ -125,7 +125,7 @@ A small REST API in Java at `server/`, so the hello world talks to a real HTTP s
 
 ## Steps (stop after each)
 
-1. Scaffold the workspace, both packages, the Spring Boot `server/` folder, Makefile, lint and test setup. Show me the file tree first.
+1. Scaffold the workspace, both packages and the Spring Boot `server/` folder. These repo files already exist, so keep and extend them rather than replacing them: `Makefile` (its targets assume `pnpm -r lint|typecheck|test|build`, a Vite app named `hello`, and `server/mvnw`), `.editorconfig`, `.gitignore`, `.gitattributes`, `.prettierrc.json`, `.nvmrc`, `.github/workflows/ci.yml`, `.github/dependabot.yml`. Each package needs `lint`, `typecheck`, `test` and `build` scripts. Use ESLint flat config (`eslint.config.js`) with `typescript-eslint` and the React hooks plugin. Show me the file tree first.
 2a. The Spring Boot demo server with `MockMvc` tests for every route. Stop.
 2b. Connector: the interface, `memoryConnector`, `restConnector`, MSW handlers for its tests. Tests for every CRUD call and for error handling.
 3. DataSet: the state machine with tests written first. Cover open, cursor moves, append, post failure keeping the user's input, delete moving the cursor, delete failure, and overlapping-operation guards.
