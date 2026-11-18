@@ -36,6 +36,29 @@ main {
   padding: 2rem 1.25rem;
 }
 
+.row {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.row input,
+.row button {
+  font: inherit;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.row input {
+  flex: 1;
+}
+
+.row button:disabled {
+  opacity: 0.45;
+}
+
 h1 {
   margin: 0;
   font-size: 1.5rem;
