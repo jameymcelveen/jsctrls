@@ -72,20 +72,28 @@ function App() {
 ```
 packages/jsctrls   the library: connectors, DataSet, binding, controls
 apps/hello         the hello world app
-server             demo REST API in Java 21 + Spring Boot 3
-docker-compose.yml runs the API and the app together
+server/java        demo REST API in Java 21 + Spring Boot 3 (the default)
+server/dotnet      the same API in .NET 10
+server/go          placeholder
+server/node        placeholder
+specs              done and draft specs, with feature files for the done ones
+docker-compose.yml runs one API and the app. SERVER=java by default
 ```
 
-The demo server is deliberately small and idiomatic: records for DTOs, constructor injection, Bean Validation, `ProblemDetail` errors and `MockMvc` tests.
+The demo servers implement one names API. The Java one is the default: records for DTOs, constructor injection, Bean Validation, `ProblemDetail` errors and `MockMvc` tests. The .NET server is the other implementation. Go and Node are folders only.
 
 ## Getting started
 
 ```sh
-make help    # list every target
-make up      # docker compose: API + app on http://localhost:8080
-make dev     # Spring Boot + Vite dev server, no Docker
-make check   # lint, typecheck and all tests (what CI runs)
+make help                  # list every target
+make up                    # Java API + app on http://localhost:8080
+make up SERVER=dotnet      # same app, .NET API
+make dev                   # Spring Boot on :8081 + Vite, no Docker
+make dev SERVER=dotnet     # .NET API on :8081 + Vite
+make check                 # lint, typecheck, web tests, Java tests, .NET tests
 ```
+
+`SERVER` accepts `java`, `dotnet`, `go`, or `node`. Go and Node stop with an error until they exist. `make test-api` and `make build` use the same switch. `make test` always runs both implemented APIs.
 
 ## Status
 
@@ -100,6 +108,8 @@ The hello world is in place: an edit box, a list, Add, and Delete, talking to th
 - [x] Hello world, end to end, with Docker Compose
 
 ## What's next
+
+Done and draft work is listed in [`specs/`](specs/README.md).
 
 - Bound `DataField`, `DataNavigator` and `DataGrid`
 - Optimistic posts as an option

@@ -5,7 +5,11 @@ updates:
     schedule:
       interval: weekly
   - package-ecosystem: maven
-    directory: /server
+    directory: /server/java
+    schedule:
+      interval: weekly
+  - package-ecosystem: nuget
+    directory: /server/dotnet
     schedule:
       interval: weekly
   - package-ecosystem: github-actions

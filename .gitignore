@@ -16,9 +16,14 @@ npm-debug.log*
 pnpm-debug.log*
 
 # Java / Maven
-server/target/
+server/java/target/
 *.class
 *.log
+
+# .NET
+server/dotnet/**/bin/
+server/dotnet/**/obj/
+server/dotnet/**/TestResults/
 
 # Env
 .env

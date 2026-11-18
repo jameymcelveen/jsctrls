@@ -23,12 +23,12 @@ jobs:
       - run: pnpm -r test
 
   api:
-    name: API (Maven test)
+    name: API (Java)
     runs-on: ubuntu-latest
-    if: ${{ hashFiles('server/pom.xml') != '' }}
+    if: ${{ hashFiles('server/java/pom.xml') != '' }}
     defaults:
       run:
-        working-directory: server
+        working-directory: server/java
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -37,3 +37,17 @@ jobs:
           java-version: "21"
           cache: maven
       - run: ./mvnw -B test
+
+  dotnet:
+    name: API (.NET)
+    runs-on: ubuntu-latest
+    if: ${{ hashFiles('server/dotnet/src/Jsctrls.Demo.csproj') != '' }}
+    defaults:
+      run:
+        working-directory: server/dotnet
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: server/dotnet/global.json
+      - run: dotnet test --nologo

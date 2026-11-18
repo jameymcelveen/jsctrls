@@ -18,7 +18,7 @@ describe("App", () => {
     vi.unstubAllGlobals();
   });
 
-  it("adds a name and deletes the current one", async () => {
+  it("adds a name and then deletes it", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
