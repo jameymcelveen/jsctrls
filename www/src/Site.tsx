@@ -130,8 +130,8 @@ export function Site({ names }: { names: DataSet<Name> }) {
             <li className="done">TextInput, Button and ListBox</li>
             <li className="done">A headless core, typed control meta, and jc-listbox</li>
             <li className="done">
-              One demo API in Java, .NET, Go, TypeScript, Python, PHP and Rust, all passing one
-              conformance suite
+              One demo API in eight languages (Java, .NET, Go, TypeScript, Python, PHP, Rust and
+              Kotlin), all passing one conformance suite
             </li>
             <li>DataField, DataNavigator and DataGrid</li>
             <li>A drag-and-drop designer for .tsx files, as a VS Code extension (spike started)</li>
