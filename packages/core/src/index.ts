@@ -14,6 +14,7 @@ export type {
 export type {
   ButtonProperties,
   DataFieldProperties,
+  StringFieldOf,
   ListBoxProperties,
   TextInputProperties,
 } from "./controls/properties";

@@ -86,7 +86,7 @@ describe("DataField controller", () => {
     expect(snapshot.disabled).toBe(true);
   });
 
-  it("is disabled while the dataset is busy", async () => {
+  it("is read-only, not disabled, while the dataset is busy", async () => {
     let release: (row: Name) => void = () => undefined;
     const connector: Connector<Name> = {
       ...memoryConnector<Name>([{ id: "1", name: "Ada" }]),
@@ -100,9 +100,18 @@ describe("DataField controller", () => {
     const field = createDataFieldController({ dataSet, field: "name" });
     field.change("Augusta");
     const posted = dataSet.post();
-    expect(field.getSnapshot().disabled).toBe(true);
+    expect(field.getSnapshot()).toMatchObject({ readOnly: true, disabled: false });
     release({ id: "1", name: "Augusta" });
     await posted;
-    expect(field.getSnapshot().disabled).toBe(false);
+    expect(field.getSnapshot()).toMatchObject({ readOnly: false, disabled: false });
+  });
+
+  it("only binds text fields", () => {
+    const dataSet = createDataSet({
+      connector: memoryConnector<{ id: string; name: string; age: number }>([]),
+    });
+    expect(createDataFieldController({ dataSet, field: "name" })).toBeTruthy();
+    // @ts-expect-error a number field cannot be bound to a text control
+    expect(createDataFieldController({ dataSet, field: "age" })).toBeTruthy();
   });
 });

@@ -10,6 +10,7 @@ export function DataField<T extends { id: string }>({
   dataSet,
   field,
   disabled,
+  readOnly,
   ...rest
 }: DataFieldProps<T>) {
   const controller = useMemo(() => createDataFieldController({ dataSet, field }), [dataSet, field]);
@@ -24,6 +25,7 @@ export function DataField<T extends { id: string }>({
       {...rest}
       value={snapshot.value}
       disabled={snapshot.disabled || Boolean(disabled)}
+      readOnly={snapshot.readOnly || Boolean(readOnly)}
       onChange={(event) => {
         controller.change(event.target.value);
       }}

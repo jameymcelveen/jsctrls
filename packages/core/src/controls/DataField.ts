@@ -1,11 +1,13 @@
 import type { DataSetSnapshot } from "../dataset/createDataSet";
-import type { DataFieldProperties } from "./properties";
+import type { DataFieldProperties, StringFieldOf } from "./properties";
 
 export interface DataFieldSnapshot {
   /** Pending value while inserting or editing, otherwise the current row, otherwise "". */
   readonly value: string;
-  /** No current row and not inserting, or the dataset is busy. */
+  /** No current row and not inserting: there is nothing to edit. */
   readonly disabled: boolean;
+  /** The dataset is busy. Read-only, not disabled, so the field keeps keyboard focus. */
+  readonly readOnly: boolean;
   readonly error: string | null;
 }
 
@@ -40,20 +42,22 @@ export function createDataFieldController<T extends { id: string }>({
       if (dataSet.getSnapshot().state === "browse") {
         dataSet.edit();
       }
-      dataSet.setField(field, value as T[typeof field]);
+      // field only names text-valued keys (StringFieldOf), so a string is the right type here.
+      dataSet.setField(field, value as T[StringFieldOf<T>]);
     },
   };
 }
 
 function derive<T extends { id: string }>(
   source: DataSetSnapshot<T>,
-  field: keyof T & string,
+  field: StringFieldOf<T>,
 ): DataFieldSnapshot {
   const editing = source.state === "inserting" || source.state === "editing";
   const raw = editing ? source.pending?.[field] : source.current?.[field];
   return {
     value: raw == null ? "" : String(raw),
-    disabled: (source.current === null && source.state !== "inserting") || source.busy,
+    disabled: source.current === null && source.state !== "inserting",
+    readOnly: source.busy,
     error: source.error,
   };
 }
