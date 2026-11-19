@@ -96,7 +96,7 @@ Every demo server implements the same names API ([spec 006](specs/006-names-api/
 | `node` | TypeScript on Node 24, Fastify, `node:test` | passes |
 | `python` | Python 3.14, FastAPI, pytest | passes |
 | `php` | PHP 8.5, Slim 4, PHPUnit (file-backed store) | passes |
-| `rust` | Rust, axum | planned |
+| `rust` | Rust 2024 edition, axum 0.8, tokio | passes |
 | `kotlin` | Kotlin, Ktor | planned |
 
 Every server folder has the same four entry points: `serve.sh` (runs on `SERVER_PORT`, default 8081), `test.sh` (its native tests), `build.sh`, and a `Dockerfile`. The Makefile, Compose and the conformance runner use only those, so adding a language never touches them.
