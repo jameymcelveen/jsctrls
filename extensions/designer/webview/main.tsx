@@ -159,13 +159,12 @@ function Canvas({
     };
   }, []);
 
-  // Keep the canvas outline on the node selected in the structure list.
+  // Tell the canvas which file is being designed, then outline the selected node.
   useEffect(() => {
-    frame.current?.contentWindow?.postMessage(
-      { source: "jsctrls-designer", type: "highlight", src },
-      "*",
-    );
-  }, [src, ready]);
+    const target = frame.current?.contentWindow;
+    target?.postMessage({ source: "jsctrls-designer", type: "focus", file: fileName }, "*");
+    target?.postMessage({ source: "jsctrls-designer", type: "highlight", src }, "*");
+  }, [fileName, src, ready]);
 
   const page = `${url.replace(/\/$/, "")}/?jc-design=1`;
   return (
