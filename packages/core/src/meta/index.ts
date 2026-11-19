@@ -4,11 +4,18 @@
  */
 import buttonMeta from "../controls/Button.meta";
 import dataFieldMeta from "../controls/DataField.meta";
+import dataNavigatorMeta from "../controls/DataNavigator.meta";
 import listBoxMeta from "../controls/ListBox.meta";
 import textInputMeta from "../controls/TextInput.meta";
 
 export type { ControlCategory, ControlMeta, PropertyKind, PublishedProperty } from "./types";
-export { buttonMeta, dataFieldMeta, listBoxMeta, textInputMeta };
+export { buttonMeta, dataFieldMeta, dataNavigatorMeta, listBoxMeta, textInputMeta };
 
 /** Every control's meta, in palette order. */
-export const controls = [textInputMeta, buttonMeta, dataFieldMeta, listBoxMeta] as const;
+export const controls = [
+  textInputMeta,
+  buttonMeta,
+  dataFieldMeta,
+  dataNavigatorMeta,
+  listBoxMeta,
+] as const;
