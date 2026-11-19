@@ -1,0 +1,23 @@
+{
+  "name": "jsctrls-names-api-node",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "The jsctrls demo names API in TypeScript on Node, with Fastify.",
+  "engines": {
+    "node": ">=24.15"
+  },
+  "scripts": {
+    "start": "node src/main.ts",
+    "test": "node --test \"src/**/*.test.ts\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fastify/cors": "11.4.3",
+    "fastify": "5.12.8"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "typescript": "6.0.3"
+  }
+}
