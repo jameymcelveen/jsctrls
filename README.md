@@ -94,7 +94,7 @@ Every demo server implements the same names API ([spec 006](specs/006-names-api/
 | `dotnet` | .NET 10, minimal APIs | passes |
 | `go` | Go, standard library only (`net/http` routing) | passes |
 | `node` | TypeScript on Node 24, Fastify, `node:test` | passes |
-| `python` | Python, FastAPI | planned |
+| `python` | Python 3.14, FastAPI, pytest | passes |
 | `php` | PHP, Slim | planned |
 | `rust` | Rust, axum | planned |
 | `kotlin` | Kotlin, Ktor | planned |
