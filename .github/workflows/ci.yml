@@ -29,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        server: [java, dotnet, go, node, python]
+        server: [java, dotnet, go, node, python, php]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -67,6 +67,12 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.14"
+      - if: matrix.server == 'php'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          extensions: mbstring, ctype, json
+          tools: composer:v2
       - name: Native tests
         working-directory: server/${{ matrix.server }}
         run: ./test.sh

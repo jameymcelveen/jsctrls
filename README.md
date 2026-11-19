@@ -95,7 +95,7 @@ Every demo server implements the same names API ([spec 006](specs/006-names-api/
 | `go` | Go, standard library only (`net/http` routing) | passes |
 | `node` | TypeScript on Node 24, Fastify, `node:test` | passes |
 | `python` | Python 3.14, FastAPI, pytest | passes |
-| `php` | PHP, Slim | planned |
+| `php` | PHP 8.5, Slim 4, PHPUnit (file-backed store) | passes |
 | `rust` | Rust, axum | planned |
 | `kotlin` | Kotlin, Ktor | planned |
 
