@@ -259,3 +259,75 @@ function walk(file: ts.SourceFile, node: Jsx, id: string, depth: number, out: De
     }
   }
 }
+
+export type MovePosition = "before" | "after";
+
+/**
+ * Move one JSX child before or after a sibling under the same parent.
+ * Returns a single edit that rewrites only the span covering both, so one
+ * undo puts it back, or an error message. v1 rules: same parent, and both
+ * nodes sit on their own lines (the whole lines move).
+ */
+export function moveNode(
+  text: string,
+  fromStart: number,
+  toStart: number,
+  position: MovePosition,
+): TextEdit | string {
+  const nodes = parseTsx(text).nodes;
+  const parentOf = (id: string) => id.slice(0, Math.max(0, id.lastIndexOf(".")));
+  const from = nodes.find((node) => node.start === fromStart);
+  const dropped = nodes.find((node) => node.start === toStart);
+  if (!from || !dropped) {
+    return "The element is no longer in the file. Try again.";
+  }
+  if (from === dropped) {
+    return "An element cannot move onto itself.";
+  }
+  // A drop on something inside a sibling (an input in a row) means next to that sibling.
+  let to: DesignNode | undefined = dropped;
+  while (to && to.depth > 0 && parentOf(to.id) !== parentOf(from.id)) {
+    const parentId = parentOf(to.id);
+    to = nodes.find((node) => node.id === parentId);
+  }
+  if (!to || to === from) {
+    return "An element cannot move into itself.";
+  }
+  if (from.depth === 0 || parentOf(from.id) !== parentOf(to.id)) {
+    return "Move works between siblings in the same parent for now.";
+  }
+  const fromLines = ownLines(text, from);
+  const toLines = ownLines(text, to);
+  if (!fromLines || !toLines) {
+    return "Move works when each element is on its own lines.";
+  }
+  const insertAt = position === "before" ? toLines.start : toLines.end;
+  if (insertAt === fromLines.start || insertAt === fromLines.end) {
+    return "The element is already there.";
+  }
+  const block = text.slice(fromLines.start, fromLines.end);
+  const regionStart = Math.min(fromLines.start, insertAt);
+  const regionEnd = Math.max(fromLines.end, insertAt);
+  const region = text.slice(regionStart, regionEnd);
+  const cutStart = fromLines.start - regionStart;
+  const cutEnd = fromLines.end - regionStart;
+  const without = region.slice(0, cutStart) + region.slice(cutEnd);
+  const insert =
+    insertAt <= fromLines.start ? insertAt - regionStart : insertAt - regionStart - block.length;
+  const newText = without.slice(0, insert) + block + without.slice(insert);
+  return { start: regionStart, end: regionEnd, newText };
+}
+
+/** The full lines a node occupies, when nothing else shares them. */
+function ownLines(text: string, node: DesignNode): { start: number; end: number } | null {
+  const start = text.lastIndexOf("\n", node.start - 1) + 1;
+  if (text.slice(start, node.start).trim() !== "") {
+    return null;
+  }
+  const newline = text.indexOf("\n", node.end);
+  const lineEnd = newline === -1 ? text.length : newline;
+  if (text.slice(node.end, lineEnd).trim() !== "") {
+    return null;
+  }
+  return { start, end: newline === -1 ? text.length : newline + 1 };
+}

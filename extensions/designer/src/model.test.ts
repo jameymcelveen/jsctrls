@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { applyTextEdit, parseTsx, validateEdit } from "./model";
+import { applyTextEdit, moveNode, parseTsx, validateEdit } from "./model";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const helloApp = readFileSync(join(here, "../../../apps/hello/src/App.tsx"), "utf8");
@@ -114,5 +114,101 @@ describe("edits", () => {
   it("rejects a value that would break the attribute", () => {
     expect(validateEdit(helloApp, { ...edit, newText: 'a"b' })).toMatch(/cannot contain/);
     expect(validateEdit(helloApp, { ...edit, newText: "a\nb" })).toMatch(/cannot contain/);
+  });
+});
+
+describe("moveNode", () => {
+  const names = (text: string) => parseTsx(text).nodes.map((node) => `${node.depth}:${node.name}`);
+  const startOf = (text: string, name: string, nth = 0) =>
+    parseTsx(text).nodes.filter((node) => node.name === name)[nth]?.start ?? -1;
+  const apply = (text: string, edit: ReturnType<typeof moveNode>) => {
+    if (typeof edit === "string") {
+      throw new Error(edit);
+    }
+    return applyTextEdit(text, edit);
+  };
+
+  it("moves ListBox above the row of inputs", () => {
+    const edit = moveNode(
+      helloApp,
+      startOf(helloApp, "ListBox"),
+      startOf(helloApp, "div"),
+      "before",
+    );
+    const after = apply(helloApp, edit);
+    expect(names(after)).toEqual([
+      "0:main",
+      "1:h1",
+      "1:ListBox",
+      "1:div",
+      "2:TextInput",
+      "2:Button",
+      "2:Button",
+    ]);
+    expect(after.length).toBe(helloApp.length);
+    expect([...after].sort().join("")).toBe([...helloApp].sort().join(""));
+  });
+
+  it("swaps the two buttons, moving the multi-line Delete button before Add", () => {
+    const edit = moveNode(
+      helloApp,
+      startOf(helloApp, "Button", 1),
+      startOf(helloApp, "Button", 0),
+      "before",
+    );
+    const after = apply(helloApp, edit);
+    const buttons = parseTsx(after).nodes.filter((node) => node.name === "Button");
+    expect(after.slice(buttons[0]?.start, buttons[0]?.end)).toContain("Delete");
+    expect(after.slice(buttons[1]?.start, buttons[1]?.end)).toContain("Add");
+  });
+
+  it("moves after a sibling, and a move back restores the file exactly", () => {
+    const moved = apply(
+      helloApp,
+      moveNode(helloApp, startOf(helloApp, "h1"), startOf(helloApp, "div"), "after"),
+    );
+    expect(names(moved).slice(0, 3)).toEqual(["0:main", "1:div", "2:TextInput"]);
+    const back = apply(
+      moved,
+      moveNode(moved, startOf(moved, "h1"), startOf(moved, "div"), "before"),
+    );
+    expect(back).toBe(helloApp);
+  });
+
+  it("treats a drop inside a sibling as a drop next to that sibling", () => {
+    const edit = moveNode(
+      helloApp,
+      startOf(helloApp, "ListBox"),
+      startOf(helloApp, "Button"),
+      "before",
+    );
+    expect(names(apply(helloApp, edit))).toEqual([
+      "0:main",
+      "1:h1",
+      "1:ListBox",
+      "1:div",
+      "2:TextInput",
+      "2:Button",
+      "2:Button",
+    ]);
+  });
+
+  it("refuses moves it cannot do cleanly", () => {
+    expect(
+      moveNode(helloApp, startOf(helloApp, "div"), startOf(helloApp, "Button"), "before"),
+    ).toMatch(/into itself/);
+    expect(
+      moveNode(helloApp, startOf(helloApp, "main"), startOf(helloApp, "h1"), "before"),
+    ).toMatch(/into itself/);
+    expect(moveNode(helloApp, startOf(helloApp, "h1"), startOf(helloApp, "h1"), "after")).toMatch(
+      /itself/,
+    );
+    expect(moveNode(helloApp, startOf(helloApp, "h1"), startOf(helloApp, "div"), "before")).toMatch(
+      /already/,
+    );
+    const inline = "export function A() { return <p><b /><i /></p>; }\n";
+    expect(moveNode(inline, inline.indexOf("<i"), inline.indexOf("<b"), "before")).toMatch(
+      /own lines/,
+    );
   });
 });

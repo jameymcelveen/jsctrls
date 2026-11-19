@@ -33,6 +33,7 @@ function App() {
   const [notice, setNotice] = useState<string | null>(null);
   const dataSetRef = useRef<DataSet<Row> | null>(null);
   const fileNameRef = useRef<string | null>(null);
+  const versionRef = useRef(0);
   const [error, setError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -40,6 +41,23 @@ function App() {
     const onMessage = (event: MessageEvent<HostMessage | CanvasMessage>) => {
       const message = event.data;
       if ("source" in message) {
+        if (message.source === "jsctrls-canvas" && message.type === "move") {
+          const offset = (src: string) => Number(src.slice(src.lastIndexOf("#") + 1));
+          const sameFile = (src: string) =>
+            src.slice(0, src.lastIndexOf("#")) === fileNameRef.current;
+          if (!sameFile(message.src) || !sameFile(message.target)) {
+            setNotice("Drag and drop works inside the file being designed.");
+          } else {
+            setNotice(null);
+            vscode.postMessage({
+              type: "move",
+              version: versionRef.current,
+              from: offset(message.src),
+              to: offset(message.target),
+              position: message.position,
+            });
+          }
+        }
         if (message.source === "jsctrls-canvas" && message.type === "select") {
           // "<file>#<offset>" names a JSX element. Select it when it is in this file.
           const hash = message.src.lastIndexOf("#");
@@ -58,6 +76,7 @@ function App() {
       }
       if (message.type === "model") {
         fileNameRef.current = message.fileName;
+        versionRef.current = message.version;
         setModel({
           version: message.version,
           component: message.component,
@@ -128,6 +147,13 @@ function App() {
 
 type CanvasMessage =
   | { source: "jsctrls-canvas"; type: "select"; src: string }
+  | {
+      source: "jsctrls-canvas";
+      type: "move";
+      src: string;
+      target: string;
+      position: "before" | "after";
+    }
   | { source: "jsctrls-canvas"; type: "ready" };
 
 /** The running app, from its dev server, with the jsctrls design overlay. */

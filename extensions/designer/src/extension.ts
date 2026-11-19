@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { parseTsx, validateEdit } from "./model";
+import { moveNode, parseTsx, validateEdit, type TextEdit } from "./model";
 import type { HostMessage, WebviewMessage } from "./protocol";
 
 const VIEW_TYPE = "jsctrls.designer";
@@ -71,8 +71,20 @@ class DesignerProvider implements vscode.CustomTextEditorProvider {
         sendModel();
         return;
       }
-      const edit = { start: message.start, end: message.end, newText: message.newText };
-      const problem = validateEdit(document.getText(), edit);
+      let edit: TextEdit = { start: 0, end: 0, newText: "" };
+      let problem: string | null;
+      if (message.type === "move") {
+        const moved = moveNode(document.getText(), message.from, message.to, message.position);
+        if (typeof moved === "string") {
+          problem = moved;
+        } else {
+          edit = moved;
+          problem = null;
+        }
+      } else {
+        edit = { start: message.start, end: message.end, newText: message.newText };
+        problem = validateEdit(document.getText(), edit);
+      }
       if (problem) {
         post({ type: "error", message: problem });
         sendModel();
