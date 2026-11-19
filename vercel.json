@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "pnpm install --frozen-lockfile",
+  "buildCommand": "pnpm --filter hello build",
+  "outputDirectory": "apps/hello/dist",
+  "rewrites": [{ "source": "/api/names/:id", "destination": "/api/names?id=:id" }]
+}

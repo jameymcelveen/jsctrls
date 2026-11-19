@@ -27,7 +27,11 @@ server/dotnet/**/bin/
 server/dotnet/**/obj/
 server/dotnet/**/TestResults/
 
+# Vercel
+.vercel
+
 # Env
 .env
 .env.*
 !.env.example
+.env*
