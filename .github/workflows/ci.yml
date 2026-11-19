@@ -57,3 +57,38 @@ jobs:
         with:
           global-json-file: server/dotnet/global.json
       - run: dotnet test --nologo
+
+  conformance:
+    name: Conformance (${{ matrix.server }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        server: [java, dotnet]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - if: matrix.server == 'java'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - if: matrix.server == 'java'
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/wrapper
+          key: maven-wrapper-${{ hashFiles('server/java/.mvn/wrapper/maven-wrapper.properties') }}
+      - if: matrix.server == 'java'
+        working-directory: server/java
+        run: for i in 1 2 3; do ./mvnw -B -v && exit 0; sleep 10; done; exit 1
+      - if: matrix.server == 'dotnet'
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: server/dotnet/global.json
+      - run: ./conformance/run.sh ${{ matrix.server }}

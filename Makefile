@@ -5,7 +5,7 @@ SHELL := /bin/bash
 # java (default), dotnet, go, or node. Go and node are not implemented.
 SERVER ?= java
 
-.PHONY: help install dev dev-web dev-api dev-java dev-dotnet test test-web test-api test-java test-dotnet lint format typecheck build build-java build-dotnet up up-java up-dotnet down logs clean check
+.PHONY: conformance help install dev dev-web dev-api dev-java dev-dotnet test test-web test-api test-java test-dotnet lint format typecheck build build-java build-dotnet up up-java up-dotnet down logs clean check
 
 help: ## List targets
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -31,6 +31,9 @@ dev-java: ## Run the Spring Boot API on :8081
 
 dev-dotnet: ## Run the .NET API on :8081
 	cd server/dotnet && dotnet run --project src/Jsctrls.Demo.csproj --launch-profile http
+
+conformance: ## Run the HTTP conformance suite against one API. SERVER=java (default)
+	./conformance/run.sh $(SERVER)
 
 test: test-web test-java test-dotnet ## Run web tests and both implemented APIs
 
