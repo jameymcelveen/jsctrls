@@ -1,0 +1,113 @@
+body {
+  margin: 0;
+  padding: 0;
+  color: var(--vscode-foreground);
+  background: var(--vscode-editor-background);
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+}
+
+.designer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 12px;
+}
+
+.designer-panel {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+
+.designer-panel h2 {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--vscode-descriptionForeground);
+}
+
+.designer-panel h3 {
+  margin: 16px 0 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--vscode-descriptionForeground);
+}
+
+/* jsctrls ListBox, themed to match VS Code lists. */
+.designer .jsctrls-listbox {
+  border: 1px solid var(--vscode-panel-border, var(--vscode-widget-border));
+  min-height: 12rem;
+  font-family: var(--vscode-editor-font-family);
+}
+
+.designer .jsctrls-listbox:focus {
+  border-color: var(--vscode-focusBorder);
+}
+
+.designer .jsctrls-option {
+  white-space: pre;
+  padding: 2px 8px;
+}
+
+.designer .jsctrls-option[aria-selected="true"] {
+  background: var(--vscode-list-activeSelectionBackground);
+  color: var(--vscode-list-activeSelectionForeground);
+}
+
+.designer-props {
+  display: grid;
+  grid-template-columns: minmax(80px, max-content) minmax(0, 1fr);
+  gap: 6px 12px;
+  align-items: center;
+  margin: 0;
+}
+
+.designer-props dt,
+.designer-props dd {
+  margin: 0;
+}
+
+.designer-props input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 3px 6px;
+  color: var(--vscode-input-foreground);
+  background: var(--vscode-input-background);
+  border: 1px solid var(--vscode-input-border, transparent);
+  font: inherit;
+}
+
+.designer-props input:focus {
+  outline: 1px solid var(--vscode-focusBorder);
+}
+
+.designer-code {
+  margin: 0;
+  padding: 6px 8px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: var(--vscode-editor-font-family);
+  background: var(--vscode-textCodeBlock-background);
+}
+
+.designer-tag {
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground);
+}
+
+.designer-note,
+.designer-empty {
+  color: var(--vscode-descriptionForeground);
+}
+
+.designer-empty {
+  padding: 12px;
+}
+
+.designer-error {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--vscode-errorForeground);
+}

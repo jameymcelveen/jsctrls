@@ -1,0 +1,70 @@
+{
+  "name": "jsctrls-designer",
+  "displayName": "jsctrls Designer",
+  "description": "Visual designer for React .tsx files built with jsctrls. Spike: structure and inspector.",
+  "version": "0.0.1",
+  "private": true,
+  "publisher": "jameymcelveen",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Visualization"
+  ],
+  "main": "./dist/extension.cjs",
+  "activationEvents": [
+    "onCustomEditor:jsctrls.designer",
+    "onCommand:jsctrls.openDesigner"
+  ],
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "jsctrls.designer",
+        "displayName": "jsctrls Designer",
+        "selector": [
+          {
+            "filenamePattern": "*.tsx"
+          }
+        ],
+        "priority": "option"
+      }
+    ],
+    "commands": [
+      {
+        "command": "jsctrls.openDesigner",
+        "title": "jsctrls: Open Designer"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "jsctrls.openDesigner",
+          "when": "resourceExtname == .tsx && activeEditor == workbench.editors.files.textFileEditor",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.mjs",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@jsctrls/react": "workspace:*",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "typescript": "catalog:"
+  },
+  "devDependencies": {
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@types/vscode": "catalog:",
+    "esbuild": "catalog:",
+    "eslint": "catalog:",
+    "vitest": "catalog:"
+  }
+}

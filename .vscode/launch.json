@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run jsctrls Designer",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/extensions/designer",
+        "${workspaceFolder}"
+      ],
+      "outFiles": ["${workspaceFolder}/extensions/designer/dist/**/*.cjs"],
+      "preLaunchTask": "Build jsctrls Designer"
+    }
+  ]
+}
