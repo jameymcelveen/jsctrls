@@ -22,7 +22,7 @@ catalog:
   jsdom: "31.0.1"
   "@testing-library/react": "16.3.3"
   "@testing-library/jest-dom": "7.0.1"
-  msw: "2.15.0"
+  msw: "3.0.6"
   "@types/vscode": "1.90.0"
   esbuild: "0.28.2"
 
