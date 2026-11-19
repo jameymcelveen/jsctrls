@@ -10,6 +10,17 @@ export interface ListBoxProperties<T extends { id: string }> {
   display: keyof T & string;
 }
 
+/** Keys of T whose values are text, so a text control can never write a string into a number. */
+export type StringFieldOf<T> = {
+  [K in keyof T]-?: T[K] extends string | null | undefined ? K : never;
+}[keyof T] &
+  string;
+
+export interface DataFieldProperties<T extends { id: string }> {
+  dataSet: DataSet<T>;
+  field: StringFieldOf<T>;
+}
+
 export interface TextInputProperties {
   value: string;
   onChange: (value: string) => void;

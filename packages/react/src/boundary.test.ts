@@ -1,7 +1,8 @@
 import type { ButtonHTMLAttributes } from "react";
-import type { ButtonProperties, TextInputProperties } from "@jsctrls/core";
+import type { ButtonProperties, DataFieldProperties, TextInputProperties } from "@jsctrls/core";
 import { describe, expect, it } from "vitest";
 import { leakedDesignFiles, reachable, runtimeEntries } from "./bdd/reachable";
+import type { DataFieldProps } from "./controls/DataField";
 import type { TextInputProps } from "./controls/TextInput";
 
 describe("runtime boundary", () => {
@@ -14,6 +15,10 @@ describe("runtime boundary", () => {
   it("React skin props satisfy the core properties the meta files are checked against", () => {
     const textInput: TextInputProperties = {} as TextInputProps;
     const button: ButtonProperties = {} as ButtonHTMLAttributes<HTMLButtonElement>;
-    expect([textInput, button]).toHaveLength(2);
+    const dataField: DataFieldProperties<{ id: string; name: string }> = {} as DataFieldProps<{
+      id: string;
+      name: string;
+    }>;
+    expect([textInput, button, dataField]).toHaveLength(3);
   });
 });

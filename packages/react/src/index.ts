@@ -2,6 +2,8 @@ export * from "@jsctrls/core";
 export { DataSetProvider, useDataSetContext } from "./react/DataSetProvider";
 export { useDataSet } from "./react/useDataSet";
 export { Button } from "./controls/Button";
+export { DataField } from "./controls/DataField";
+export type { DataFieldProps } from "./controls/DataField";
 export { ListBox } from "./controls/ListBox";
 export type { ListBoxProps } from "./controls/ListBox";
 export { TextInput } from "./controls/TextInput";

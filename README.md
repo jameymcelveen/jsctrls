@@ -113,12 +113,13 @@ The hello world is in place: an edit box, a list, Add, and Delete, talking to th
 - [x] `TextInput`, `Button`, `ListBox`
 - [x] Hello world, end to end, with Docker Compose
 - [x] Headless core: React as a skin, typed control meta, and the `jc-listbox` web component
+- [x] Bound `DataField`
 
 ## What's next
 
 Done and draft work is listed in [`specs/`](specs/README.md).
 
-- Bound `DataField`, `DataNavigator` and `DataGrid`
+- `DataNavigator` and `DataGrid`
 - Optimistic posts as an option
 - A Contacts example app
 - Further out: a drag-and-drop form designer, the way Delphi did it
