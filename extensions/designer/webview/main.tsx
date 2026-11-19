@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { createDataSet, ListBox, memoryConnector, TextInput, useDataSet } from "@jsctrls/react";
 import type { DataSet } from "@jsctrls/react";
@@ -23,18 +23,47 @@ function toRows(nodes: readonly DesignNode[]): Row[] {
 }
 
 function App() {
-  const [model, setModel] = useState<{ version: number; component: string | null; rows: Row[] }>();
+  const [model, setModel] = useState<{
+    version: number;
+    component: string | null;
+    rows: Row[];
+    fileName: string;
+    canvasUrl: string;
+  }>();
+  const [notice, setNotice] = useState<string | null>(null);
+  const dataSetRef = useRef<DataSet<Row> | null>(null);
+  const fileNameRef = useRef<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
-    const onMessage = (event: MessageEvent<HostMessage>) => {
+    const onMessage = (event: MessageEvent<HostMessage | CanvasMessage>) => {
       const message = event.data;
+      if ("source" in message) {
+        if (message.source === "jsctrls-canvas" && message.type === "select") {
+          // "<file>#<offset>" names a JSX element. Select it when it is in this file.
+          const hash = message.src.lastIndexOf("#");
+          const file = message.src.slice(0, hash);
+          const start = Number(message.src.slice(hash + 1));
+          const dataSet = dataSetRef.current;
+          const row = dataSet?.getSnapshot().rows.find((candidate) => candidate.start === start);
+          if (file !== fileNameRef.current) {
+            setNotice(`That element is in ${file.split("/").pop() ?? file}, not this file.`);
+          } else if (dataSet && row) {
+            setNotice(null);
+            dataSet.locate(row.id);
+          }
+        }
+        return;
+      }
       if (message.type === "model") {
+        fileNameRef.current = message.fileName;
         setModel({
           version: message.version,
           component: message.component,
           rows: toRows(message.nodes),
+          fileName: message.fileName,
+          canvasUrl: message.canvasUrl,
         });
       } else {
         setError(message.message);
@@ -53,6 +82,7 @@ function App() {
     [model],
   );
   useEffect(() => {
+    dataSetRef.current = dataSet;
     if (!dataSet) {
       return;
     }
@@ -74,10 +104,11 @@ function App() {
   }
   return (
     <div className="designer">
-      <section className="designer-panel" aria-label="Structure">
+      <section className="designer-panel designer-structure" aria-label="Structure">
         <h2>Structure: {model.component}</h2>
         <ListBox dataSet={dataSet} display="label" />
       </section>
+      <Canvas dataSet={dataSet} fileName={model.fileName} url={model.canvasUrl} notice={notice} />
       <Inspector
         dataSet={dataSet}
         version={model.version}
@@ -92,6 +123,63 @@ function App() {
         </p>
       ) : null}
     </div>
+  );
+}
+
+type CanvasMessage =
+  | { source: "jsctrls-canvas"; type: "select"; src: string }
+  | { source: "jsctrls-canvas"; type: "ready" };
+
+/** The running app, from its dev server, with the jsctrls design overlay. */
+function Canvas({
+  dataSet,
+  fileName,
+  url,
+  notice,
+}: {
+  dataSet: DataSet<Row>;
+  fileName: string;
+  url: string;
+  notice: string | null;
+}) {
+  const frame = useRef<HTMLIFrameElement | null>(null);
+  const [ready, setReady] = useState(false);
+  const node = useDataSet(dataSet).current;
+  const src = node && node.kind === "element" ? `${fileName}#${node.start}` : null;
+
+  useEffect(() => {
+    const onMessage = (event: MessageEvent<CanvasMessage>) => {
+      if (event.data && event.data.source === "jsctrls-canvas" && event.data.type === "ready") {
+        setReady(true);
+      }
+    };
+    window.addEventListener("message", onMessage);
+    return () => {
+      window.removeEventListener("message", onMessage);
+    };
+  }, []);
+
+  // Keep the canvas outline on the node selected in the structure list.
+  useEffect(() => {
+    frame.current?.contentWindow?.postMessage(
+      { source: "jsctrls-designer", type: "highlight", src },
+      "*",
+    );
+  }, [src, ready]);
+
+  const page = `${url.replace(/\/$/, "")}/?jc-design=1`;
+  return (
+    <section className="designer-panel designer-canvas" aria-label="Canvas">
+      <h2>Canvas: {url}</h2>
+      <iframe ref={frame} title="Canvas" src={page} className="designer-frame" />
+      {!ready ? (
+        <p className="designer-note">
+          Waiting for the app at {url}. Start its dev server (make dev) with the jsctrls Vite
+          plugin, or set jsctrls.designer.devServerUrl.
+        </p>
+      ) : null}
+      {notice ? <p className="designer-note">{notice}</p> : null}
+    </section>
   );
 }
 

@@ -44,6 +44,8 @@ class DesignerProvider implements vscode.CustomTextEditorProvider {
         post({
           type: "model",
           version: document.version,
+          fileName: document.fileName,
+          canvasUrl: canvasUrl(),
           ...parseTsx(document.getText(), document.fileName),
         });
       } catch (error) {
@@ -96,8 +98,15 @@ class DesignerProvider implements vscode.CustomTextEditorProvider {
     ).join("");
     const script = webview.asWebviewUri(vscode.Uri.joinPath(dist, "webview.js"));
     const style = webview.asWebviewUri(vscode.Uri.joinPath(dist, "webview.css"));
+    let frameOrigin = "http://localhost:*";
+    try {
+      frameOrigin = new URL(canvasUrl()).origin;
+    } catch {
+      // Keep the localhost default when the setting is not a valid URL.
+    }
     const csp = [
       "default-src 'none'",
+      `frame-src ${frameOrigin} http://localhost:* http://127.0.0.1:*`,
       `style-src ${webview.cspSource}`,
       `script-src 'nonce-${nonce}'`,
       `font-src ${webview.cspSource}`,
@@ -117,4 +126,10 @@ class DesignerProvider implements vscode.CustomTextEditorProvider {
 </body>
 </html>`;
   }
+}
+
+function canvasUrl(): string {
+  return vscode.workspace
+    .getConfiguration("jsctrls.designer")
+    .get<string>("devServerUrl", "http://localhost:5173");
 }

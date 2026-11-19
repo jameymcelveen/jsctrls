@@ -15,8 +15,24 @@ body {
 }
 
 .designer-panel {
-  flex: 1 1 280px;
+  flex: 1 1 260px;
   min-width: 0;
+}
+
+.designer-structure {
+  flex: 0 1 240px;
+}
+
+.designer-canvas {
+  flex: 3 1 480px;
+}
+
+.designer-frame {
+  display: block;
+  width: 100%;
+  height: 70vh;
+  border: 1px solid var(--vscode-panel-border, var(--vscode-widget-border));
+  background: #fff;
 }
 
 .designer-panel h2 {

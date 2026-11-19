@@ -16,6 +16,7 @@
     "react-dom": "catalog:"
   },
   "devDependencies": {
+    "@jsctrls/vite-plugin": "workspace:*",
     "@testing-library/jest-dom": "catalog:",
     "@testing-library/react": "catalog:",
     "@types/react": "catalog:",
