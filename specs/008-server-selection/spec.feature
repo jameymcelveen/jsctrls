@@ -5,7 +5,7 @@ Feature: Server selection
     When Compose resolves the API image
     Then the build context is ./server/java
 
-  Scenario: the makefile accepts java, dotnet, go, and node
-    Given the Makefile
+  Scenario: the makefile runs any implemented server
+    Given the Makefile and the server folders
     When the developer sets SERVER
-    Then java, dotnet, go, and node are accepted and go and node fail until implemented
+    Then every implemented server has serve.sh, test.sh, build.sh and a Dockerfile, and the others fail with a clear message

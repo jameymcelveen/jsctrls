@@ -10,18 +10,11 @@ log="$(mktemp)"
 
 export SERVER_PORT="$port" DEMO_DELAY_MS=0
 
-case "$server" in
-  java) (cd "$root/server/java" && exec ./mvnw -B -q spring-boot:run) >"$log" 2>&1 & ;;
-  dotnet) (cd "$root/server/dotnet" && exec dotnet run --project src/Jsctrls.Demo.csproj --no-launch-profile) >"$log" 2>&1 & ;;
-  *)
-    if [ -x "$root/server/$server/serve.sh" ]; then
-      (cd "$root/server/$server" && exec ./serve.sh) >"$log" 2>&1 &
-    else
-      echo "No server named $server (expected server/$server/serve.sh)." >&2
-      exit 2
-    fi
-    ;;
-esac
+if [ ! -x "$root/server/$server/serve.sh" ]; then
+  echo "No server named $server (expected server/$server/serve.sh)." >&2
+  exit 2
+fi
+(cd "$root/server/$server" && exec ./serve.sh) >"$log" 2>&1 &
 pid=$!
 stop() { pkill -P "$pid" 2>/dev/null || true; kill "$pid" 2>/dev/null || true; }
 trap stop EXIT

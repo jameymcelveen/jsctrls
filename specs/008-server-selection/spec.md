@@ -32,7 +32,7 @@
 - **FR-001**: Compose defaults the API build to `./server/${SERVER:-java}`.
 - **FR-002**: `make up`, `make dev-api`, `make test-api`, and `make build` honor `SERVER`.
 - **FR-003**: `make up-java` and `make up-dotnet` select those servers.
-- **FR-004**: `SERVER=go` and `SERVER=node` fail with a clear message until those servers exist.
+- **FR-004**: The servers are java, dotnet, go, node, python, php, rust and kotlin. A server is implemented when `server/<name>/` has `serve.sh`, `test.sh`, `build.sh` and a `Dockerfile`; the Makefile, Compose and `conformance/run.sh` use only those. Any other SERVER fails with a clear message.
 
 ## Success Criteria
 

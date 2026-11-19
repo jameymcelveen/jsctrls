@@ -326,13 +326,28 @@ const handlers: Record<string, () => Promise<void>> = {
     expect(compose).toContain("./server/${SERVER:-java}");
   },
 
-  "the makefile accepts java, dotnet, go, and node": async () => {
+  "the makefile runs any implemented server": async () => {
     const makefile = readFileSync(join(root, "Makefile"), "utf8");
     expect(makefile).toContain("SERVER ?= java");
-    expect(makefile).toContain("java|dotnet");
-    expect(makefile).toContain("go|node");
+    expect(makefile).toContain("SERVERS := java dotnet go node python php rust kotlin");
+    for (const target of ["dev-api", "test-api", "build", "up", "conformance"]) {
+      expect(makefile).toMatch(new RegExp(`^${target}:`, "m"));
+    }
     expect(makefile).toContain("up-java");
     expect(makefile).toContain("up-dotnet");
+    const implemented = readdirSync(join(root, "server"), { withFileTypes: true }).filter(
+      (entry) => entry.isDirectory() && existsSync(join(root, "server", entry.name, "serve.sh")),
+    );
+    expect(implemented.map((entry) => entry.name)).toEqual(
+      expect.arrayContaining(["java", "dotnet"]),
+    );
+    for (const entry of implemented) {
+      for (const file of ["serve.sh", "test.sh", "build.sh", "Dockerfile"]) {
+        expect(existsSync(join(root, "server", entry.name, file)), `${entry.name}/${file}`).toBe(
+          true,
+        );
+      }
+    }
   },
 
   "the core imports no UI framework": async () => {

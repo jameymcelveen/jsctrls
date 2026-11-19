@@ -1,5 +1,4 @@
-# API image: java by default. Override with SERVER=dotnet (go and node are not implemented).
-#   SERVER=dotnet docker compose up --build
+# API image: java by default. Any implemented server works: SERVER=go docker compose up --build
 services:
   api:
     build: ./server/${SERVER:-java}
