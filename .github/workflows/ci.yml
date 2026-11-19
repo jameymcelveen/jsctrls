@@ -29,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        server: [java, dotnet, go, node, python, php]
+        server: [java, dotnet, go, node, python, php, rust]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -73,9 +73,21 @@ jobs:
           php-version: "8.5"
           extensions: mbstring, ctype, json
           tools: composer:v2
+      - if: matrix.server == 'rust'
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - if: matrix.server == 'rust'
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: server/rust
       - name: Native tests
         working-directory: server/${{ matrix.server }}
         run: ./test.sh
+      # A cold release build can outlast the conformance runner's health wait.
+      - if: matrix.server == 'rust'
+        working-directory: server/rust
+        run: ./build.sh
       - name: Conformance suite
         run: ./conformance/run.sh ${{ matrix.server }}
       # The image Compose builds: it must start, pass its own curl health probe
