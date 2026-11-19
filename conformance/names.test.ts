@@ -139,3 +139,76 @@ describe(`names API at ${base}`, () => {
     expect(await response.json()).toMatchObject({ status: "UP" });
   });
 });
+
+/** Edges of the same contract: FR-001, FR-004, FR-005, FR-006 and FR-008. */
+describe(`names API edges at ${base}`, () => {
+  async function list(): Promise<Name[]> {
+    const response = await call("GET", "/api/names");
+    expect(response.status).toBe(200);
+    return (await response.json()) as Name[];
+  }
+
+  it("ids sort as numbers, so 10 comes after 9", async () => {
+    let names = await list();
+    while (Math.max(...names.map((name) => Number(name.id))) < 10) {
+      await create("Count me");
+      names = await list();
+    }
+    const ids = names.map((name) => Number(name.id));
+    expect(ids).toEqual([...ids].sort((a, b) => a - b));
+  });
+
+  it("a name of exactly 100 characters is accepted", async () => {
+    const created = await create("b".repeat(100));
+    expect(created.name).toHaveLength(100);
+  });
+
+  it("an update with a blank name is a bad request", async () => {
+    const created = await create("Keep me");
+    const path = `/api/names/${encodeURIComponent(created.id)}`;
+    await expectProblem(await call("PATCH", path, { name: "  " }), 400, "Bad Request", "name");
+    expect(await (await call("GET", path)).json()).toEqual(created);
+  });
+
+  it("an update is what a later get returns", async () => {
+    const created = await create("Before");
+    const path = `/api/names/${encodeURIComponent(created.id)}`;
+    expect((await call("PATCH", path, { name: "After" })).status).toBe(200);
+    expect(await (await call("GET", path)).json()).toEqual({ id: created.id, name: "After" });
+  });
+
+  it("a deleted name leaves the list", async () => {
+    const created = await create("Gone soon");
+    expect((await call("DELETE", `/api/names/${encodeURIComponent(created.id)}`)).status).toBe(204);
+    expect((await list()).map((name) => name.id)).not.toContain(created.id);
+  });
+
+  it("the 127.0.0.1 Vite origin is allowed", async () => {
+    const response = await call("GET", "/api/names", undefined, {
+      Origin: "http://127.0.0.1:5173",
+    });
+    expect(response.headers.get("access-control-allow-origin")).toBe("http://127.0.0.1:5173");
+  });
+
+  for (const method of ["POST", "PATCH", "DELETE"]) {
+    it(`a ${method} preflight from the Vite origin is allowed`, async () => {
+      const response = await call("OPTIONS", "/api/names/1", undefined, {
+        Origin: "http://localhost:5173",
+        "Access-Control-Request-Method": method,
+        "Access-Control-Request-Headers": "content-type",
+      });
+      expect(response.status).toBeLessThan(300);
+      expect(response.headers.get("access-control-allow-origin")).toBe("http://localhost:5173");
+      expect((response.headers.get("access-control-allow-methods") ?? "").toUpperCase()).toContain(
+        method,
+      );
+    });
+  }
+
+  it("another origin is not allowed", async () => {
+    const response = await call("GET", "/api/names", undefined, {
+      Origin: "http://evil.example",
+    });
+    expect(response.headers.get("access-control-allow-origin")).toBeNull();
+  });
+});
