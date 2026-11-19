@@ -9,7 +9,12 @@
       "import": "./src/index.ts",
       "default": "./src/index.ts"
     },
-    "./styles.css": "./src/styles.css"
+    "./styles.css": "./src/styles.css",
+    "./meta": {
+      "types": "./src/meta/index.ts",
+      "import": "./src/meta/index.ts",
+      "default": "./src/meta/index.ts"
+    }
   },
   "files": [
     "dist"

@@ -1,79 +1,54 @@
-import type { KeyboardEvent } from "react";
-import type { DataSet } from "@jsctrls/core";
-import { useDataSet } from "../react/useDataSet";
+import { useMemo, useSyncExternalStore } from "react";
+import { createListBoxController, type ListBoxProperties } from "@jsctrls/core";
 
-export interface ListBoxProps<T extends { id: string }> {
-  dataSet: DataSet<T>;
-  display: keyof T & string;
-}
+export type ListBoxProps<T extends { id: string }> = ListBoxProperties<T>;
 
-/** Bound list. Click or Up/Down moves the DataSet cursor. */
+/** Bound list. A React skin over the core ListBox controller. */
 export function ListBox<T extends { id: string }>({ dataSet, display }: ListBoxProps<T>) {
-  const snapshot = useDataSet(dataSet);
-  const status =
-    snapshot.state === "posting"
-      ? "saving..."
-      : snapshot.state === "deleting"
-        ? "deleting..."
-        : snapshot.state === "loading"
-          ? "loading..."
-          : null;
-
-  function onKeyDown(event: KeyboardEvent<HTMLDivElement>): void {
-    if (event.key !== "ArrowUp" && event.key !== "ArrowDown") {
-      return;
-    }
-    event.preventDefault();
-    const currentIndex = snapshot.current
-      ? snapshot.rows.findIndex((row) => row.id === snapshot.current?.id)
-      : -1;
-    const nextIndex =
-      event.key === "ArrowUp"
-        ? Math.max(0, currentIndex - 1)
-        : Math.min(snapshot.rows.length - 1, currentIndex + 1);
-    const next = snapshot.rows[nextIndex];
-    if (next) {
-      dataSet.locate(next.id);
-    }
-  }
+  const controller = useMemo(
+    () => createListBoxController({ dataSet, display }),
+    [dataSet, display],
+  );
+  const { options, list, status, error } = useSyncExternalStore(
+    controller.subscribe,
+    controller.getSnapshot,
+    controller.getSnapshot,
+  );
 
   return (
     <div className="jsctrls-list">
       <div
         className="jsctrls-listbox"
-        role="listbox"
+        role={list.role}
         tabIndex={0}
-        aria-activedescendant={snapshot.current ? optionId(snapshot.current.id) : undefined}
-        onKeyDown={onKeyDown}
+        aria-activedescendant={list["aria-activedescendant"]}
+        onKeyDown={(event) => {
+          if (controller.keyDown(event.key)) {
+            event.preventDefault();
+          }
+        }}
       >
-        {snapshot.rows.map((row) => {
-          const selected = snapshot.current?.id === row.id;
-          return (
-            <div
-              key={row.id}
-              id={optionId(row.id)}
-              role="option"
-              aria-selected={selected}
-              className={selected ? "jsctrls-option is-selected" : "jsctrls-option"}
-              onClick={() => {
-                dataSet.locate(row.id);
-              }}
-            >
-              {String(row[display] ?? "")}
-            </div>
-          );
-        })}
+        {options.map((option) => (
+          <div
+            key={option.id}
+            id={option.attributes.id}
+            role={option.attributes.role}
+            aria-selected={option.selected}
+            className={option.selected ? "jsctrls-option is-selected" : "jsctrls-option"}
+            onClick={() => {
+              controller.select(option.id);
+            }}
+          >
+            {option.label}
+          </div>
+        ))}
       </div>
       {status ? <p className="jsctrls-status">{status}</p> : null}
-      {snapshot.error ? (
+      {error ? (
         <p className="jsctrls-error" role="alert">
-          {snapshot.error}
+          {error}
         </p>
       ) : null}
     </div>
   );
-}
-
-function optionId(id: string): string {
-  return `jsctrls-option-${id}`;
 }
