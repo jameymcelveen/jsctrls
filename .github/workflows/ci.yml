@@ -29,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        server: [java, dotnet, go, node, python, php, rust]
+        server: [java, dotnet, go, node, python, php, rust, kotlin]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -38,21 +38,22 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - if: matrix.server == 'java'
+      # Kotlin shares the JDK and the Maven wrapper with Java.
+      - if: matrix.server == 'java' || matrix.server == 'kotlin'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "21"
           cache: maven
       # setup-java caches ~/.m2/repository but not the Maven the wrapper downloads.
-      - if: matrix.server == 'java'
+      - if: matrix.server == 'java' || matrix.server == 'kotlin'
         uses: actions/cache@v4
         with:
           path: ~/.m2/wrapper
           key: maven-wrapper-${{ hashFiles('server/java/.mvn/wrapper/maven-wrapper.properties') }}
       # Fetch Maven with retries, so a flaky download does not fail the build.
-      - if: matrix.server == 'java'
-        working-directory: server/java
+      - if: matrix.server == 'java' || matrix.server == 'kotlin'
+        working-directory: server/${{ matrix.server }}
         run: for i in 1 2 3; do ./mvnw -B -v && exit 0; sleep 10; done; exit 1
       - if: matrix.server == 'dotnet'
         uses: actions/setup-dotnet@v4
