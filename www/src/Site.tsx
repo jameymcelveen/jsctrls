@@ -129,7 +129,9 @@ export function Site({ names }: { names: DataSet<Name> }) {
             <li className="done">Connectors, the DataSet, and the React binding</li>
             <li className="done">TextInput, Button and ListBox</li>
             <li className="done">A headless core, typed control meta, and jc-listbox</li>
-            <li className="done">Demo API in Java, .NET, and a Vercel function</li>
+            <li className="done">
+              One demo API in Java, .NET and Go, all passing one conformance suite
+            </li>
             <li>DataField, DataNavigator and DataGrid</li>
             <li>A drag-and-drop designer for .tsx files, as a VS Code extension (spike started)</li>
           </ul>

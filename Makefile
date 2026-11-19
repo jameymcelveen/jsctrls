@@ -2,56 +2,59 @@
 .DEFAULT_GOAL := help
 SHELL := /bin/bash
 
-# java (default), dotnet, go, or node. Go and node are not implemented.
+# The demo names API, in several languages. Each server lives in server/<name>/
+# and is implemented when it has serve.sh, test.sh, build.sh and a Dockerfile.
+SERVERS := java dotnet go node python php rust kotlin
 SERVER ?= java
 
-.PHONY: conformance help install dev dev-web dev-api dev-java dev-dotnet test test-web test-api test-java test-dotnet lint format typecheck build build-java build-dotnet up up-java up-dotnet down logs clean check
+# Servers `make test` runs natively. The rest need their own toolchain; CI runs them all.
+TEST_SERVERS ?= java dotnet
+
+.PHONY: help install dev dev-web dev-api test test-web test-api lint format typecheck check build up up-java up-dotnet down logs clean conformance servers
 
 help: ## List targets
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
 
+# Fails with a clear message unless SERVER names an implemented server.
+define require_server
+	@if ! echo " $(SERVERS) " | grep -q " $(SERVER) "; then \
+	  echo "Unknown SERVER=$(SERVER). Use one of: $(SERVERS)." >&2; exit 1; \
+	elif [ ! -x server/$(SERVER)/serve.sh ]; then \
+	  echo "server/$(SERVER) is not implemented yet. Implemented: $$(ls server/*/serve.sh | cut -d/ -f2 | tr '\n' ' ')" >&2; exit 1; \
+	fi
+endef
+
+servers: ## List the demo servers and which are implemented
+	@for s in $(SERVERS); do \
+	  if [ -x server/$$s/serve.sh ]; then echo "  $$s"; else echo "  $$s (not implemented)"; fi; \
+	done
+
 install: ## Install JS dependencies
 	pnpm install
 
-dev: ## Run the selected API and Vite. SERVER=java (default) or dotnet
+dev: ## Run the selected API and Vite. SERVER=java (default), see make servers
 	@trap 'kill 0' EXIT; $(MAKE) dev-api SERVER=$(SERVER) & $(MAKE) dev-web & wait
 
 dev-web: ## Run only the Vite dev server
 	pnpm --filter hello dev
 
-dev-api: ## Run the selected API on :8081. SERVER=java (default) or dotnet
-	@case "$(SERVER)" in \
-	  java|dotnet) $(MAKE) dev-$(SERVER) ;; \
-	  go|node) echo "server/$(SERVER) is not implemented. Use SERVER=java or SERVER=dotnet." >&2; exit 1 ;; \
-	  *) echo "Unknown SERVER=$(SERVER). Use java, dotnet, go, or node." >&2; exit 1 ;; \
-	esac
+dev-api: ## Run the selected API on :8081
+	$(require_server)
+	cd server/$(SERVER) && SERVER_PORT=8081 ./serve.sh
 
-dev-java: ## Run the Spring Boot API on :8081
-	cd server/java && ./mvnw spring-boot:run
-
-dev-dotnet: ## Run the .NET API on :8081
-	cd server/dotnet && dotnet run --project src/Jsctrls.Demo.csproj --launch-profile http
-
-conformance: ## Run the HTTP conformance suite against one API. SERVER=java (default)
+conformance: ## Run the HTTP conformance suite against the selected API
+	$(require_server)
 	./conformance/run.sh $(SERVER)
 
-test: test-web test-java test-dotnet ## Run web tests and both implemented APIs
+test: test-web ## Web tests plus the TEST_SERVERS APIs (java and dotnet by default)
+	@for s in $(TEST_SERVERS); do $(MAKE) --no-print-directory test-api SERVER=$$s || exit 1; done
 
 test-web: ## Vitest for the library and app
 	pnpm -r test
 
-test-api: ## Test one API. SERVER=java (default) or dotnet
-	@case "$(SERVER)" in \
-	  java|dotnet) $(MAKE) test-$(SERVER) ;; \
-	  go|node) echo "server/$(SERVER) is not implemented. Use SERVER=java or SERVER=dotnet." >&2; exit 1 ;; \
-	  *) echo "Unknown SERVER=$(SERVER). Use java, dotnet, go, or node." >&2; exit 1 ;; \
-	esac
-
-test-java: ## Maven tests for the Java API
-	cd server/java && ./mvnw -q test
-
-test-dotnet: ## xUnit tests for the .NET API
-	cd server/dotnet && dotnet test --nologo
+test-api: ## Native tests for the selected API
+	$(require_server)
+	cd server/$(SERVER) && ./test.sh
 
 lint: ## ESLint plus a Prettier check
 	pnpm -r lint
@@ -63,28 +66,16 @@ format: ## Format JS/TS with Prettier
 typecheck: ## TypeScript type check
 	pnpm -r typecheck
 
-check: lint typecheck test ## Lint, typecheck, web tests, and both APIs
+check: lint typecheck test ## Lint, typecheck, web tests, and the TEST_SERVERS APIs
 
 build: ## Build the library, the app, and the selected API
 	pnpm -r build
-	@case "$(SERVER)" in \
-	  java|dotnet) $(MAKE) build-$(SERVER) ;; \
-	  go|node) echo "server/$(SERVER) is not implemented. Use SERVER=java or SERVER=dotnet." >&2; exit 1 ;; \
-	  *) echo "Unknown SERVER=$(SERVER). Use java, dotnet, go, or node." >&2; exit 1 ;; \
-	esac
+	$(require_server)
+	cd server/$(SERVER) && ./build.sh
 
-build-java: ## Package the Java API
-	cd server/java && ./mvnw -q -DskipTests package
-
-build-dotnet: ## Publish the .NET API
-	cd server/dotnet && dotnet publish src/Jsctrls.Demo.csproj -c Release --nologo
-
-up: ## Compose the app on :8080. SERVER=java (default) or dotnet
-	@case "$(SERVER)" in \
-	  java|dotnet) SERVER=$(SERVER) docker compose up --build -d ;; \
-	  go|node) echo "server/$(SERVER) is not implemented. Use SERVER=java or SERVER=dotnet." >&2; exit 1 ;; \
-	  *) echo "Unknown SERVER=$(SERVER). Use java, dotnet, go, or node." >&2; exit 1 ;; \
-	esac
+up: ## Compose the app on :8080 with the selected API
+	$(require_server)
+	SERVER=$(SERVER) docker compose up --build -d
 
 up-java: ## Compose with the Java API
 	@$(MAKE) up SERVER=java

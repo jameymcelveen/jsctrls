@@ -78,15 +78,34 @@ packages/elements  @jsctrls/elements: web-component skins, starting with jc-list
 apps/hello         the hello world app (served at jsctrls.com/example/)
 www                the jsctrls.com landing page, with a live demo of both skins
 api                Vercel function: the names API for jsctrls.com
-server/java        demo REST API in Java 21 + Spring Boot 3 (the default)
-server/dotnet      the same API in .NET 10
-server/go          placeholder
-server/node        placeholder
+server/<lang>      the demo names API, once per language (see below)
+conformance        one HTTP test suite every server must pass
 specs              done and draft specs, with feature files for the done ones
 docker-compose.yml runs one API and the app. SERVER=java by default
 ```
 
-The demo servers implement one names API. The Java one is the default: records for DTOs, constructor injection, Bean Validation, `ProblemDetail` errors and `MockMvc` tests. The .NET server is the other implementation. Go and Node are folders only.
+## One API, many languages
+
+Every demo server implements the same names API ([spec 006](specs/006-names-api/spec.md)) and must pass the same HTTP [conformance suite](conformance/names.test.ts), unchanged. Each one is written the way that language's community would write it, so the folders double as a side-by-side study.
+
+| Server | Stack | Status |
+|---|---|---|
+| `java` (default) | Java 21, Spring Boot 3 | passes |
+| `dotnet` | .NET 10, minimal APIs | passes |
+| `go` | Go, standard library only (`net/http` routing) | passes |
+| `node` | TypeScript, Fastify | planned |
+| `python` | Python, FastAPI | planned |
+| `php` | PHP, Slim | planned |
+| `rust` | Rust, axum | planned |
+| `kotlin` | Kotlin, Ktor | planned |
+
+Every server folder has the same four entry points: `serve.sh` (runs on `SERVER_PORT`, default 8081), `test.sh` (its native tests), `build.sh`, and a `Dockerfile`. The Makefile, Compose and the conformance runner use only those, so adding a language never touches them.
+
+```sh
+make servers                     # which servers exist
+make conformance SERVER=go       # start the Go server and run the suite against it
+make test-api SERVER=go          # its native tests
+```
 
 ## Getting started
 
@@ -99,7 +118,7 @@ make dev SERVER=dotnet     # .NET API on :8081 + Vite
 make check                 # lint, typecheck, web tests, Java tests, .NET tests
 ```
 
-`SERVER` accepts `java`, `dotnet`, `go`, or `node`. Go and Node stop with an error until they exist. `make test-api` and `make build` use the same switch. `make test` always runs both implemented APIs.
+`SERVER` picks any implemented server; the others stop with a clear message. `make test` runs the web tests plus the Java and .NET APIs (set `TEST_SERVERS` for more). CI runs every server's native tests and the conformance suite.
 
 ## Status
 
