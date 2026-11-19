@@ -1,5 +1,5 @@
 import { createContext, useContext, type ReactNode } from "react";
-import type { DataSet } from "../dataset/createDataSet";
+import type { DataSet } from "@jsctrls/core";
 
 const DataSetContext = createContext<DataSet<{ id: string }> | null>(null);
 

@@ -70,7 +70,8 @@ function App() {
 ## Repository layout
 
 ```
-packages/jsctrls   the library: connectors, DataSet, binding, controls
+packages/core      @jsctrls/core: connectors and DataSet, no framework
+packages/react     @jsctrls/react: useDataSet and the React controls
 apps/hello         the hello world app
 server/java        demo REST API in Java 21 + Spring Boot 3 (the default)
 server/dotnet      the same API in .NET 10

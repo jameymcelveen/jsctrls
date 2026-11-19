@@ -6,7 +6,7 @@
 
 **Status**: Done
 
-**Verified by**: `packages/jsctrls/src/bdd/completed.bdd.test.tsx`
+**Verified by**: `packages/react/src/bdd/completed.bdd.test.tsx`
 
 **Input**: React reads a DataSet through `useDataSet`, which uses `useSyncExternalStore`.
 

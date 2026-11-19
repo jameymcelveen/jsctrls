@@ -7,10 +7,10 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { act } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { ConnectorError } from "../connector/connectorError";
-import { memoryConnector } from "../connector/memoryConnector";
-import type { Connector } from "../connector/types";
-import { createDataSet, DataSetError } from "../dataset/createDataSet";
+import { ConnectorError } from "@jsctrls/core";
+import { memoryConnector } from "@jsctrls/core";
+import type { Connector } from "@jsctrls/core";
+import { createDataSet, DataSetError } from "@jsctrls/core";
 import { useDataSet } from "../react/useDataSet";
 import { Button } from "../controls/Button";
 import { ListBox } from "../controls/ListBox";
@@ -52,7 +52,8 @@ function statusOf(markdown: string): string {
 
 const handlers: Record<string, () => Promise<void>> = {
   "the library, hello app, and Java server are present": async () => {
-    expect(existsSync(join(root, "packages/jsctrls/src/index.ts"))).toBe(true);
+    expect(existsSync(join(root, "packages/core/src/index.ts"))).toBe(true);
+    expect(existsSync(join(root, "packages/react/src/index.ts"))).toBe(true);
     expect(existsSync(join(root, "apps/hello/src/App.tsx"))).toBe(true);
     expect(existsSync(join(root, "server/java/pom.xml"))).toBe(true);
     expect(existsSync(join(root, "server/java/mvnw"))).toBe(true);
@@ -358,7 +359,7 @@ describe("completed specs", () => {
       throw new Error(`${entry.name} has no scenarios`);
     }
 
-    if (verifiedBy === "packages/jsctrls/src/bdd/completed.bdd.test.tsx") {
+    if (verifiedBy === "packages/react/src/bdd/completed.bdd.test.tsx") {
       for (const title of titles) {
         used.add(title);
         const run = handlers[title];

@@ -2,7 +2,7 @@ FROM node:24-alpine AS build
 WORKDIR /src
 RUN corepack enable && corepack prepare pnpm@12.21.0 --activate
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY packages/jsctrls packages/jsctrls
+COPY packages packages
 COPY apps/hello apps/hello
 RUN pnpm install --frozen-lockfile
 RUN pnpm --filter hello build

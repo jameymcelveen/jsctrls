@@ -2,7 +2,7 @@
 
 These specs use the [Spec Kit](https://github.com/github/spec-kit) specification shape: a constitution in `.specify/memory/constitution.md`, one directory per feature, and Gherkin scenarios for anything marked done. The Specify CLI is not required to read or check them.
 
-`pnpm --filter jsctrls test` runs `packages/jsctrls/src/bdd/completed.bdd.test.tsx`. That suite executes the library scenarios and fails if a done scenario has no test, or if a draft spec grows a feature file. The names API scenarios run in `server/dotnet` (`dotnet test`) and the Java server (`server/java`, `./mvnw test`).
+`pnpm --filter @jsctrls/react test` runs `packages/react/src/bdd/completed.bdd.test.tsx`. That suite executes the library scenarios and fails if a done scenario has no test, or if a draft spec grows a feature file. The names API scenarios run in `server/dotnet` (`dotnet test`) and the Java server (`server/java`, `./mvnw test`).
 
 ## Done
 

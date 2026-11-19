@@ -6,7 +6,7 @@
 
 **Status**: Done
 
-**Verified by**: `packages/jsctrls/src/bdd/completed.bdd.test.tsx`
+**Verified by**: `packages/react/src/bdd/completed.bdd.test.tsx`
 
 **Input**: A DataSet is a cursor and an edit buffer over a connector. It does not import React.
 

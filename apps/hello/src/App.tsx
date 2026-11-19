@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
-import { Button, createDataSet, ListBox, restConnector, TextInput, useDataSet } from "jsctrls";
-import "jsctrls/styles.css";
+import {
+  Button,
+  createDataSet,
+  ListBox,
+  restConnector,
+  TextInput,
+  useDataSet,
+} from "@jsctrls/react";
+import "@jsctrls/react/styles.css";
 
 const names = createDataSet<{ id: string; name: string }>({
   connector: restConnector({ baseUrl: "/api", resource: "names" }),
