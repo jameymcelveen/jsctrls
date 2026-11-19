@@ -11,6 +11,12 @@ Controls never talk to the server. Data moves through four layers, in this order
 
 Swap the connector and nothing above it changes.
 
+## Skins
+
+React is a skin, not the foundation. Nothing below the binding layer imports React or any other framework, and a lint rule enforces it. Control behavior lives in a headless controller in the core; each skin only renders it.
+
+React component names have no prefix. Web-component tags use the prefix `jc-`. A control's design-time properties live in a `*.meta.ts` file of plain data, and design-time code lives in `*.design.tsx`. Neither ships in runtime code.
+
 ## Servers
 
 Every demo server implements the names API in `specs/006-names-api`. Java under `server/java` is the default. A folder with no implementation is not a server.
