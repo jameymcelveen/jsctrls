@@ -64,5 +64,7 @@ The API stores names, rejects a blank or oversized name, and tells the client wh
 
 ## Assumptions
 
+- `conformance/names.test.ts` runs these scenarios over plain HTTP against any server: `make conformance SERVER=<name>`. CI runs it against every implemented server, and a new server is done when it passes unchanged.
+
 - Go and Node do not implement this yet. Their folders point here.
 - The .NET BDD suite is the feature file's executable check. The Java tests are the original implementation of the same contract.
