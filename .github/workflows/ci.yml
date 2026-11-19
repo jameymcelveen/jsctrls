@@ -36,6 +36,13 @@ jobs:
           distribution: temurin
           java-version: "21"
           cache: maven
+      # setup-java caches ~/.m2/repository but not the Maven the wrapper downloads.
+      - uses: actions/cache@v4
+        with:
+          path: ~/.m2/wrapper
+          key: maven-wrapper-${{ hashFiles('server/java/.mvn/wrapper/maven-wrapper.properties') }}
+      # Fetch Maven with retries, so a flaky download does not fail the build.
+      - run: for i in 1 2 3; do ./mvnw -B -v && exit 0; sleep 10; done; exit 1
       - run: ./mvnw -B test
 
   dotnet:
