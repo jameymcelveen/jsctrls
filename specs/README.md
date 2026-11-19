@@ -27,3 +27,4 @@ These specs use the [Spec Kit](https://github.com/github/spec-kit) specification
 | [012-optimistic-post](012-optimistic-post/spec.md) | Optimistic posts as an option |
 | [013-contacts](013-contacts/spec.md) | Contacts example app |
 | [014-form-designer](014-form-designer/spec.md) | Drag-and-drop form designer |
+| [015-headless-core](015-headless-core/spec.md) | React as a skin over a framework-free core |
