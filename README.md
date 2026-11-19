@@ -93,7 +93,7 @@ Every demo server implements the same names API ([spec 006](specs/006-names-api/
 | `java` (default) | Java 21, Spring Boot 3 | passes |
 | `dotnet` | .NET 10, minimal APIs | passes |
 | `go` | Go, standard library only (`net/http` routing) | passes |
-| `node` | TypeScript, Fastify | planned |
+| `node` | TypeScript on Node 24, Fastify, `node:test` | passes |
 | `python` | Python, FastAPI | planned |
 | `php` | PHP, Slim | planned |
 | `rust` | Rust, axum | planned |

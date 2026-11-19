@@ -29,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        server: [java, dotnet, go]
+        server: [java, dotnet, go, node]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -68,3 +68,18 @@ jobs:
         run: ./test.sh
       - name: Conformance suite
         run: ./conformance/run.sh ${{ matrix.server }}
+      # The image Compose builds: it must start, pass its own curl health probe
+      # (the Compose healthcheck), and pass the conformance suite too.
+      - name: Docker image
+        run: |
+          docker build -t names-api server/${{ matrix.server }}
+          docker run -d --name names-api -p 8091:8080 -e SERVER_PORT=8080 -e DEMO_DELAY_MS=0 names-api
+          for i in $(seq 1 60); do
+            docker exec names-api curl -fsS http://127.0.0.1:8080/actuator/health && break
+            sleep 2
+          done
+          docker exec names-api curl -fsS http://127.0.0.1:8080/actuator/health
+          NAMES_API_URL=http://127.0.0.1:8091 pnpm --filter conformance conformance
+      - name: Container log
+        if: failure()
+        run: docker logs names-api || true
