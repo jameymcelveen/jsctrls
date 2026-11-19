@@ -1,6 +1,8 @@
 export { ConnectorError } from "./connector/connectorError";
 export { createDataSet, DataSetError } from "./dataset/createDataSet";
 export type { DataSet, DataSetSnapshot, DataSetState } from "./dataset/createDataSet";
+export { createDataFieldController } from "./controls/DataField";
+export type { DataFieldController, DataFieldSnapshot } from "./controls/DataField";
 export { createListBoxController } from "./controls/ListBox";
 export type {
   ListBoxController,
@@ -11,6 +13,7 @@ export type {
 } from "./controls/ListBox";
 export type {
   ButtonProperties,
+  DataFieldProperties,
   ListBoxProperties,
   TextInputProperties,
 } from "./controls/properties";

@@ -10,6 +10,11 @@ export interface ListBoxProperties<T extends { id: string }> {
   display: keyof T & string;
 }
 
+export interface DataFieldProperties<T extends { id: string }> {
+  dataSet: DataSet<T>;
+  field: keyof T & string;
+}
+
 export interface TextInputProperties {
   value: string;
   onChange: (value: string) => void;

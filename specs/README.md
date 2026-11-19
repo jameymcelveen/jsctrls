@@ -16,13 +16,13 @@ These specs use the [Spec Kit](https://github.com/github/spec-kit) specification
 | [006-names-api](006-names-api/spec.md) | Shared names HTTP API |
 | [007-hello](007-hello/spec.md) | Hello app add and delete |
 | [008-server-selection](008-server-selection/spec.md) | Compose and Make choose a server |
+| [009-data-field](009-data-field/spec.md) | Bound `DataField` |
 | [015-headless-core](015-headless-core/spec.md) | React as a skin over a framework-free core |
 
 ## Draft
 
 | Spec | What |
 |---|---|
-| [009-data-field](009-data-field/spec.md) | Bound `DataField` |
 | [010-data-navigator](010-data-navigator/spec.md) | `DataNavigator` |
 | [011-data-grid](011-data-grid/spec.md) | `DataGrid` |
 | [012-optimistic-post](012-optimistic-post/spec.md) | Optimistic posts as an option |

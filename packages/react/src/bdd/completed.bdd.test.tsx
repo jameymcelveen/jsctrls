@@ -13,6 +13,7 @@ import type { Connector } from "@jsctrls/core";
 import { createDataSet, DataSetError } from "@jsctrls/core";
 import { useDataSet } from "../react/useDataSet";
 import { Button } from "../controls/Button";
+import { DataField } from "../controls/DataField";
 import { ListBox } from "../controls/ListBox";
 import { TextInput } from "../controls/TextInput";
 import { listBoxMeta } from "@jsctrls/core/meta";
@@ -407,6 +408,68 @@ const handlers: Record<string, () => Promise<void>> = {
 
   "runtime code reaches no meta file": async () => {
     expect(leakedDesignFiles()).toEqual([]);
+  },
+
+  "the field shows the current row": async () => {
+    cleanup();
+    const dataSet = createDataSet({
+      connector: memoryConnector<Name>([
+        { id: "1", name: "Ada" },
+        { id: "2", name: "Grace" },
+      ]),
+    });
+    await dataSet.open();
+    render(<DataField dataSet={dataSet} field="name" aria-label="Name" />);
+    expect(screen.getByRole("textbox", { name: "Name" })).toHaveValue("Ada");
+  },
+
+  "typing updates the pending value": async () => {
+    cleanup();
+    const dataSet = createDataSet({
+      connector: memoryConnector<Name>([{ id: "1", name: "Ada" }]),
+    });
+    await dataSet.open();
+    render(<DataField dataSet={dataSet} field="name" aria-label="Name" />);
+    fireEvent.change(screen.getByRole("textbox", { name: "Name" }), {
+      target: { value: "Augusta" },
+    });
+    const snapshot = dataSet.getSnapshot();
+    expect(snapshot.state).toBe("editing");
+    expect(snapshot.pending).toMatchObject({ name: "Augusta" });
+  },
+
+  "post saves the edited value": async () => {
+    cleanup();
+    const connector = memoryConnector<Name>([{ id: "1", name: "Ada" }]);
+    const dataSet = createDataSet({ connector });
+    await dataSet.open();
+    render(<DataField dataSet={dataSet} field="name" aria-label="Name" />);
+    fireEvent.change(screen.getByRole("textbox", { name: "Name" }), {
+      target: { value: "Augusta" },
+    });
+    await act(async () => {
+      await dataSet.post();
+    });
+    expect(dataSet.getSnapshot().current?.name).toBe("Augusta");
+    expect((await connector.get("1")).name).toBe("Augusta");
+    expect(screen.getByRole("textbox", { name: "Name" })).toHaveValue("Augusta");
+  },
+
+  "cancel restores the value": async () => {
+    cleanup();
+    const dataSet = createDataSet({
+      connector: memoryConnector<Name>([{ id: "1", name: "Ada" }]),
+    });
+    await dataSet.open();
+    render(<DataField dataSet={dataSet} field="name" aria-label="Name" />);
+    fireEvent.change(screen.getByRole("textbox", { name: "Name" }), {
+      target: { value: "Augusta" },
+    });
+    act(() => {
+      dataSet.cancel();
+    });
+    expect(dataSet.getSnapshot().pending).toBeNull();
+    expect(screen.getByRole("textbox", { name: "Name" })).toHaveValue("Ada");
   },
 };
 
