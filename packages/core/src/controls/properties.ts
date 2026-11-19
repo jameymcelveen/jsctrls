@@ -21,6 +21,28 @@ export interface DataFieldProperties<T extends { id: string }> {
   field: StringFieldOf<T>;
 }
 
+/** Toolbar order. Delphi's TDBNavigator uses this sequence. */
+export const dataNavigatorButtons = [
+  "first",
+  "prior",
+  "next",
+  "last",
+  "insert",
+  "delete",
+  "edit",
+  "post",
+  "cancel",
+  "refresh",
+] as const;
+
+export type DataNavigatorButtonId = (typeof dataNavigatorButtons)[number];
+
+export interface DataNavigatorProperties<T extends { id: string }> {
+  dataSet: DataSet<T>;
+  /** When set, only these buttons are shown, still in toolbar order. */
+  buttons?: readonly DataNavigatorButtonId[] | undefined;
+}
+
 export interface TextInputProperties {
   value: string;
   onChange: (value: string) => void;

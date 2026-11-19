@@ -1,8 +1,14 @@
 import type { ButtonHTMLAttributes } from "react";
-import type { ButtonProperties, DataFieldProperties, TextInputProperties } from "@jsctrls/core";
+import type {
+  ButtonProperties,
+  DataFieldProperties,
+  DataNavigatorProperties,
+  TextInputProperties,
+} from "@jsctrls/core";
 import { describe, expect, it } from "vitest";
 import { leakedDesignFiles, reachable, runtimeEntries } from "./bdd/reachable";
 import type { DataFieldProps } from "./controls/DataField";
+import type { DataNavigatorProps } from "./controls/DataNavigator";
 import type { TextInputProps } from "./controls/TextInput";
 
 describe("runtime boundary", () => {
@@ -19,6 +25,9 @@ describe("runtime boundary", () => {
       id: string;
       name: string;
     }>;
-    expect([textInput, button, dataField]).toHaveLength(3);
+    const navigator: DataNavigatorProperties<{ id: string }> = {} as DataNavigatorProps<{
+      id: string;
+    }>;
+    expect([textInput, button, dataField, navigator]).toHaveLength(4);
   });
 });

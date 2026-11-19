@@ -14,6 +14,7 @@ import { createDataSet, DataSetError } from "@jsctrls/core";
 import { useDataSet } from "../react/useDataSet";
 import { Button } from "../controls/Button";
 import { DataField } from "../controls/DataField";
+import { DataNavigator } from "../controls/DataNavigator";
 import { ListBox } from "../controls/ListBox";
 import { TextInput } from "../controls/TextInput";
 import { listBoxMeta } from "@jsctrls/core/meta";
@@ -470,6 +471,56 @@ const handlers: Record<string, () => Promise<void>> = {
     });
     expect(dataSet.getSnapshot().pending).toBeNull();
     expect(screen.getByRole("textbox", { name: "Name" })).toHaveValue("Ada");
+  },
+
+  "next moves to the second row": async () => {
+    cleanup();
+    const dataSet = createDataSet({
+      connector: memoryConnector<Name>([
+        { id: "1", name: "Ada" },
+        { id: "2", name: "Grace" },
+      ]),
+    });
+    await dataSet.open();
+    render(<DataNavigator dataSet={dataSet} />);
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    expect(dataSet.getSnapshot().current?.name).toBe("Grace");
+  },
+
+  "cancel clears a pending insert": async () => {
+    cleanup();
+    const dataSet = createDataSet({
+      connector: memoryConnector<Name>([{ id: "1", name: "Ada" }]),
+    });
+    await dataSet.open();
+    render(<DataNavigator dataSet={dataSet} />);
+    act(() => {
+      dataSet.insert();
+      dataSet.setField("name", "Iris");
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(dataSet.getSnapshot().pending).toBeNull();
+    expect(dataSet.getSnapshot().state).toBe("browse");
+  },
+
+  "illegal buttons are disabled": async () => {
+    cleanup();
+    const dataSet = createDataSet({
+      connector: memoryConnector<Name>([
+        { id: "1", name: "Ada" },
+        { id: "2", name: "Grace" },
+      ]),
+    });
+    await dataSet.open();
+    render(<DataNavigator dataSet={dataSet} />);
+    expect(screen.getByRole("button", { name: "First" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Post" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Next" })).toBeEnabled();
+    act(() => {
+      dataSet.insert();
+    });
+    expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeEnabled();
   },
 };
 

@@ -3,6 +3,12 @@ export { createDataSet, DataSetError } from "./dataset/createDataSet";
 export type { DataSet, DataSetSnapshot, DataSetState } from "./dataset/createDataSet";
 export { createDataFieldController } from "./controls/DataField";
 export type { DataFieldController, DataFieldSnapshot } from "./controls/DataField";
+export { createDataNavigatorController } from "./controls/DataNavigator";
+export type {
+  DataNavigatorButton,
+  DataNavigatorController,
+  DataNavigatorSnapshot,
+} from "./controls/DataNavigator";
 export { createListBoxController } from "./controls/ListBox";
 export type {
   ListBoxController,
@@ -14,6 +20,8 @@ export type {
 export type {
   ButtonProperties,
   DataFieldProperties,
+  DataNavigatorButtonId,
+  DataNavigatorProperties,
   StringFieldOf,
   ListBoxProperties,
   TextInputProperties,
