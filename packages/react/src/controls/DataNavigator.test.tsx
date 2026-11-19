@@ -4,7 +4,7 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { act } from "react";
 import { afterEach, describe, expect, it } from "vitest";
-import { createDataSet, memoryConnector } from "@jsctrls/core";
+import { ConnectorError, createDataSet, memoryConnector, type Connector } from "@jsctrls/core";
 import { DataNavigator } from "./DataNavigator";
 
 interface Name {
@@ -65,5 +65,25 @@ describe("DataNavigator", () => {
     expect(screen.getByRole("button", { name: "Next" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Cancel" })).toBeTruthy();
     expect(screen.queryByRole("button", { name: "First" })).toBeNull();
+  });
+
+  it("keeps a failed post in the DataSet without an unhandled rejection", async () => {
+    const connector: Connector<Name> = {
+      ...memoryConnector<Name>(seed.map((row) => ({ ...row }))),
+      update: () => Promise.reject(new ConnectorError(500, "database down")),
+    };
+    const dataSet = createDataSet({ connector });
+    await dataSet.open();
+    render(<DataNavigator dataSet={dataSet} />);
+    act(() => {
+      dataSet.edit();
+      dataSet.setField("name", "Augusta");
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Post" }));
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+    expect(dataSet.getSnapshot()).toMatchObject({ state: "editing", error: "database down" });
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeEnabled();
   });
 });

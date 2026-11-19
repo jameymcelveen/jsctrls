@@ -26,7 +26,11 @@ export function DataNavigator<T extends { id: string }>({
           type="button"
           aria-label={button.label}
           disabled={!button.enabled}
-          onClick={() => controller.press(button.id)}
+          onClick={() => {
+            // A failed post, delete or refresh is already in the DataSet's error; do not
+            // leave an unhandled rejection in the console as well.
+            void Promise.resolve(controller.press(button.id)).catch(() => undefined);
+          }}
         >
           {button.label}
         </button>
