@@ -6,7 +6,7 @@
 
 **Status**: Done
 
-**Verified by**: `packages/jsctrls/src/bdd/completed.bdd.test.tsx`
+**Verified by**: `packages/react/src/bdd/completed.bdd.test.tsx`
 
 **Input**: Compose and Make default to the Java server and can select another one.
 

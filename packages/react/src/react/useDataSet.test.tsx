@@ -3,8 +3,8 @@
 import { render, screen } from "@testing-library/react";
 import { act } from "react";
 import { describe, expect, it } from "vitest";
-import { memoryConnector } from "../connector/memoryConnector";
-import { createDataSet, type DataSet } from "../dataset/createDataSet";
+import { memoryConnector } from "@jsctrls/core";
+import { createDataSet, type DataSet } from "@jsctrls/core";
 import { DataSetProvider, useDataSetContext } from "./DataSetProvider";
 import { useDataSet } from "./useDataSet";
 

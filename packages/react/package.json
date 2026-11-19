@@ -1,5 +1,5 @@
 {
-  "name": "jsctrls",
+  "name": "@jsctrls/react",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -20,6 +20,9 @@
     "test": "vitest run",
     "build": "tsc -p tsconfig.build.json"
   },
+  "dependencies": {
+    "@jsctrls/core": "workspace:*"
+  },
   "peerDependencies": {
     "react": "catalog:",
     "react-dom": "catalog:"
@@ -31,7 +34,6 @@
     "@types/react-dom": "catalog:",
     "eslint": "catalog:",
     "jsdom": "catalog:",
-    "msw": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "typescript": "catalog:",

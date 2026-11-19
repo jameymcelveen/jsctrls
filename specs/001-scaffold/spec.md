@@ -6,7 +6,7 @@
 
 **Status**: Done
 
-**Verified by**: `packages/jsctrls/src/bdd/completed.bdd.test.tsx`
+**Verified by**: `packages/react/src/bdd/completed.bdd.test.tsx`
 
 **Input**: A pnpm workspace with the library, the hello app, and a Java demo server.
 
@@ -28,7 +28,7 @@ A developer clones the repo and finds the library, the hello app, and the Java s
 
 ### Functional Requirements
 
-- **FR-001**: The library lives in `packages/jsctrls`.
+- **FR-001**: The library lives in `packages/core` (framework-free) and `packages/react` (the React skin).
 - **FR-002**: The hello app lives in `apps/hello`.
 - **FR-003**: The Java server lives in `server/java`, including its Maven build.
 

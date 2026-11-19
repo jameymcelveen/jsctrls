@@ -250,9 +250,9 @@ importers:
 
   apps/hello:
     dependencies:
-      jsctrls:
+      '@jsctrls/react':
         specifier: workspace:*
-        version: link:../../packages/jsctrls
+        version: link:../../packages/react
       react:
         specifier: 'catalog:'
         version: 18.3.1
@@ -291,7 +291,26 @@ importers:
         specifier: 'catalog:'
         version: 5.1.1(@types/node@26.6.6)(jsdom@31.0.1)(msw@2.15.0(@types/node@26.6.6)(typescript@6.0.3))(vite@8.3.8(@types/node@26.6.6))
 
-  packages/jsctrls:
+  packages/core:
+    devDependencies:
+      eslint:
+        specifier: 'catalog:'
+        version: 10.15.0
+      msw:
+        specifier: 'catalog:'
+        version: 2.15.0(@types/node@26.6.6)(typescript@6.0.3)
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 5.1.1(@types/node@26.6.6)(jsdom@31.0.1)(msw@2.15.0(@types/node@26.6.6)(typescript@6.0.3))(vite@8.3.8(@types/node@26.6.6))
+
+  packages/react:
+    dependencies:
+      '@jsctrls/core':
+        specifier: workspace:*
+        version: link:../core
     devDependencies:
       '@testing-library/jest-dom':
         specifier: 'catalog:'
@@ -311,9 +330,6 @@ importers:
       jsdom:
         specifier: 'catalog:'
         version: 31.0.1
-      msw:
-        specifier: 'catalog:'
-        version: 2.15.0(@types/node@26.6.6)(typescript@6.0.3)
       react:
         specifier: 'catalog:'
         version: 18.3.1

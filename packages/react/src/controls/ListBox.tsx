@@ -1,5 +1,5 @@
 import type { KeyboardEvent } from "react";
-import type { DataSet } from "../dataset/createDataSet";
+import type { DataSet } from "@jsctrls/core";
 import { useDataSet } from "../react/useDataSet";
 
 export interface ListBoxProps<T extends { id: string }> {

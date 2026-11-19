@@ -11,7 +11,7 @@
     "build": "vite build"
   },
   "dependencies": {
-    "jsctrls": "workspace:*",
+    "@jsctrls/react": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:"
   },
