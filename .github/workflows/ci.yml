@@ -20,6 +20,7 @@ jobs:
       - run: pnpm -r lint
       - run: pnpm -r typecheck
       - run: pnpm -r test
+      - run: pnpm --filter jsctrls-designer build
 
   api:
     name: API (Java)

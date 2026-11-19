@@ -1,0 +1,14 @@
+import { ListBox } from "@jsctrls/react";
+
+export function Roster({ rows, busy }: { rows: { id: string; name: string }[]; busy: boolean }) {
+  return (
+    <section title="Roster">
+      {/* a comment is not a node */}
+      {rows.map((row) => (
+        <p key={row.id}>{row.name}</p>
+      ))}
+      {busy ? <span>Loading</span> : <ListBox dataSet={data} display="name" />}
+      <button disabled {...rest}>Go</button>
+    </section>
+  );
+}
