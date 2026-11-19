@@ -24,6 +24,8 @@ jsctrls brings the idea forward. It is **inspired by** Delphi's VCL, not a copy:
 | **Binding** | TDataSource | Let React subscribe to a DataSet | The DataSet and React |
 | **Controls** | DB-aware controls | Show and edit data | Only the binding |
 
+**React is a skin.** Connectors, the DataSet, and each control's behavior live in `@jsctrls/core`, which imports no UI framework. `@jsctrls/react` renders that behavior with React, and `@jsctrls/elements` renders the same behavior as web components (`<jc-listbox>` today). The `jc-` prefix is named for J.C. Yarborough.
+
 **The one rule:** a control never talks to a server. Controls go through the binding, and the DataSet decides when to call the connector. Swap the connector and nothing above it changes.
 
 ```ts
@@ -72,6 +74,7 @@ function App() {
 ```
 packages/core      @jsctrls/core: connectors and DataSet, no framework
 packages/react     @jsctrls/react: useDataSet and the React controls
+packages/elements  @jsctrls/elements: web-component skins, starting with jc-listbox
 apps/hello         the hello world app
 server/java        demo REST API in Java 21 + Spring Boot 3 (the default)
 server/dotnet      the same API in .NET 10
@@ -107,6 +110,7 @@ The hello world is in place: an edit box, a list, Add, and Delete, talking to th
 - [x] `useDataSet` binding
 - [x] `TextInput`, `Button`, `ListBox`
 - [x] Hello world, end to end, with Docker Compose
+- [x] Headless core: React as a skin, typed control meta, and the `jc-listbox` web component
 
 ## What's next
 

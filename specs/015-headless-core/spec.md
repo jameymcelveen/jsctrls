@@ -4,7 +4,9 @@
 
 **Created**: 2026-11-18
 
-**Status**: Draft
+**Status**: Done
+
+**Verified by**: `packages/react/src/bdd/completed.bdd.test.tsx`
 
 **Input**: Keep the library framework-agnostic. React is a skin over a core that does not know React exists, so the controls can later be rendered as web components or by another framework without rewriting the behavior.
 

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import "@testing-library/jest-dom/vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -15,6 +15,9 @@ import { useDataSet } from "../react/useDataSet";
 import { Button } from "../controls/Button";
 import { ListBox } from "../controls/ListBox";
 import { TextInput } from "../controls/TextInput";
+import { listBoxMeta } from "@jsctrls/core/meta";
+import { defineJcListBox, LISTBOX_TAG, type JcListBox } from "@jsctrls/elements";
+import { leakedDesignFiles } from "./reachable";
 
 interface Name {
   id: string;
@@ -328,6 +331,82 @@ const handlers: Record<string, () => Promise<void>> = {
     expect(makefile).toContain("go|node");
     expect(makefile).toContain("up-java");
     expect(makefile).toContain("up-dotnet");
+  },
+
+  "the core imports no UI framework": async () => {
+    const coreDir = join(root, "packages/core");
+    const manifest = JSON.parse(readFileSync(join(coreDir, "package.json"), "utf8")) as Record<
+      string,
+      Record<string, string> | undefined
+    >;
+    const deps = ["dependencies", "devDependencies", "peerDependencies"].flatMap((key) =>
+      Object.keys(manifest[key] ?? {}),
+    );
+    expect(deps.filter((name) => /^(react|react-dom|@types\/react)/.test(name))).toEqual([]);
+    const sources = readdirSync(join(coreDir, "src"), { recursive: true, encoding: "utf8" })
+      .filter((file) => /\.tsx?$/.test(file))
+      .map((file) => readFileSync(join(coreDir, "src", file), "utf8"));
+    expect(
+      sources.filter((source) => /from\s+["']react(-dom)?(\/[^"']*)?["']/.test(source)),
+    ).toEqual([]);
+  },
+
+  "the React ListBox runs on the core controller": async () => {
+    cleanup();
+    const dataSet = createDataSet({
+      connector: memoryConnector<Name>([
+        { id: "1", name: "Ada" },
+        { id: "2", name: "Grace" },
+        { id: "3", name: "Katherine" },
+      ]),
+    });
+    await dataSet.open();
+    render(<ListBox dataSet={dataSet} display="name" />);
+    fireEvent.click(screen.getByRole("option", { name: "Grace" }));
+    fireEvent.keyDown(screen.getByRole("listbox"), { key: "ArrowDown" });
+    expect(screen.getByRole("option", { name: "Katherine" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+  },
+
+  "jc-listbox runs on the same controller": async () => {
+    defineJcListBox();
+    const dataSet = createDataSet({
+      connector: memoryConnector<Name>([
+        { id: "1", name: "Ada" },
+        { id: "2", name: "Grace" },
+        { id: "3", name: "Katherine" },
+      ]),
+    });
+    await dataSet.open();
+    const element = document.createElement(LISTBOX_TAG) as JcListBox;
+    element.setAttribute("display", "name");
+    element.dataSet = dataSet as unknown as JcListBox["dataSet"];
+    document.body.append(element);
+    try {
+      const grace = [...element.querySelectorAll('[role="option"]')].find(
+        (option) => option.textContent === "Grace",
+      );
+      (grace as HTMLElement).click();
+      element
+        .querySelector('[role="listbox"]')
+        ?.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+      expect(element.querySelector('[aria-selected="true"]')?.textContent).toBe("Katherine");
+    } finally {
+      element.remove();
+    }
+  },
+
+  "the ListBox meta names its tag and binding": async () => {
+    expect(listBoxMeta.tag).toBe("jc-listbox");
+    expect(listBoxMeta.properties.find((property) => property.name === "dataSet")?.bindsTo).toBe(
+      "dataSet",
+    );
+  },
+
+  "runtime code reaches no meta file": async () => {
+    expect(leakedDesignFiles()).toEqual([]);
   },
 };
 

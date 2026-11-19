@@ -331,6 +331,9 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
+      '@jsctrls/elements':
+        specifier: workspace:*
+        version: link:../elements
       '@testing-library/jest-dom':
         specifier: 'catalog:'
         version: 7.0.1(@testing-library/dom@10.4.2)(vitest@5.1.1(@types/node@26.6.6)(jsdom@31.0.1)(msw@2.15.0(@types/node@26.6.6)(typescript@6.0.3))(vite@8.3.8(@types/node@26.6.6)))
