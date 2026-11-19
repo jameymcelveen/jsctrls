@@ -9,7 +9,6 @@ jobs:
   web:
     name: Web (lint, typecheck, test)
     runs-on: ubuntu-latest
-    if: ${{ hashFiles('pnpm-lock.yaml') != '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -25,7 +24,6 @@ jobs:
   api:
     name: API (Java)
     runs-on: ubuntu-latest
-    if: ${{ hashFiles('server/java/pom.xml') != '' }}
     defaults:
       run:
         working-directory: server/java
@@ -41,7 +39,6 @@ jobs:
   dotnet:
     name: API (.NET)
     runs-on: ubuntu-latest
-    if: ${{ hashFiles('server/dotnet/src/Jsctrls.Demo.csproj') != '' }}
     defaults:
       run:
         working-directory: server/dotnet
