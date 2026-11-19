@@ -95,7 +95,7 @@ export function Site({ names }: { names: DataSet<Name> }) {
 
         <section className="band split">
           <div>
-            <h2>The Delphi hello world, in React</h2>
+            <h2>A Delphi-inspired hello world</h2>
             <p>
               An edit box, a list box and an Add button, plus Delete. The controls know how to load,
               show the cursor, and say saving or deleting while the server works.
