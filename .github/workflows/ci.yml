@@ -56,7 +56,7 @@ jobs:
         working-directory: server/${{ matrix.server }}
         run: for i in 1 2 3; do ./mvnw -B -v && exit 0; sleep 10; done; exit 1
       - if: matrix.server == 'dotnet'
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           global-json-file: server/dotnet/global.json
       - if: matrix.server == 'go'
