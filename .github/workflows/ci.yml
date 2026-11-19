@@ -21,6 +21,7 @@ jobs:
       - run: pnpm -r typecheck
       - run: pnpm -r test
       - run: pnpm --filter jsctrls-designer build
+      - run: pnpm --filter www build
 
   api:
     name: API (Java)

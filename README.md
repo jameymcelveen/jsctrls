@@ -75,7 +75,9 @@ function App() {
 packages/core      @jsctrls/core: connectors and DataSet, no framework
 packages/react     @jsctrls/react: useDataSet and the React controls
 packages/elements  @jsctrls/elements: web-component skins, starting with jc-listbox
-apps/hello         the hello world app
+apps/hello         the hello world app (served at jsctrls.com/example/)
+www                the jsctrls.com landing page, with a live demo of both skins
+api                Vercel function: the names API for jsctrls.com
 server/java        demo REST API in Java 21 + Spring Boot 3 (the default)
 server/dotnet      the same API in .NET 10
 server/go          placeholder

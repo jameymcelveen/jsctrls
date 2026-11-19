@@ -2,7 +2,19 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "pnpm install --frozen-lockfile",
-  "buildCommand": "pnpm --filter hello build",
-  "outputDirectory": "apps/hello/dist",
-  "rewrites": [{ "source": "/api/names/:id", "destination": "/api/names?id=:id" }]
+  "buildCommand": "pnpm --filter www build && HELLO_BASE=/example/ pnpm --filter hello exec vite build --outDir ../../www/dist/example --emptyOutDir",
+  "outputDirectory": "www/dist",
+  "rewrites": [
+    {
+      "source": "/api/names/:id",
+      "destination": "/api/names?id=:id"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/example",
+      "destination": "/example/",
+      "permanent": true
+    }
+  ]
 }
