@@ -266,6 +266,9 @@ importers:
         specifier: 'catalog:'
         version: 18.3.1(react@18.3.1)
     devDependencies:
+      '@jsctrls/vite-plugin':
+        specifier: workspace:*
+        version: link:../../packages/vite-plugin
       '@testing-library/jest-dom':
         specifier: 'catalog:'
         version: 7.0.1(@testing-library/dom@10.4.2)(vitest@5.1.1(@types/node@26.6.6)(jsdom@31.0.1)(msw@2.15.0(@types/node@26.6.6)(typescript@6.0.3))(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)))
@@ -311,6 +314,9 @@ importers:
 
   extensions/designer:
     dependencies:
+      '@jsctrls/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@jsctrls/react':
         specifier: workspace:*
         version: link:../../packages/react
@@ -413,6 +419,22 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 5.1.1(@types/node@26.6.6)(jsdom@31.0.1)(msw@2.15.0(@types/node@26.6.6)(typescript@6.0.3))(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2))
+
+  packages/vite-plugin:
+    dependencies:
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+    devDependencies:
+      eslint:
+        specifier: 'catalog:'
+        version: 10.15.0
+      vite:
+        specifier: 'catalog:'
+        version: 8.3.8(@types/node@26.6.6)(esbuild@0.28.2)
       vitest:
         specifier: 'catalog:'
         version: 5.1.1(@types/node@26.6.6)(jsdom@31.0.1)(msw@2.15.0(@types/node@26.6.6)(typescript@6.0.3))(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2))

@@ -6,7 +6,7 @@ export default {
   tag: "jc-datafield",
   category: "Data-aware",
   properties: [
-    { name: "dataSet", kind: "dataSet", bindsTo: "dataSet" },
-    { name: "field", kind: "field", bindsTo: "field" },
+    { name: "dataSet", kind: "dataSet", bindsTo: "dataSet", required: true },
+    { name: "field", kind: "field", bindsTo: "field", required: true },
   ],
 } satisfies ControlMeta<DataFieldProperties<{ id: string }>>;

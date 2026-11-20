@@ -6,9 +6,9 @@ export default {
   tag: "jc-textinput",
   category: "Standard",
   properties: [
-    { name: "value", kind: "string", default: "" },
+    { name: "value", kind: "string", default: "", required: true },
     { name: "placeholder", kind: "string" },
     { name: "disabled", kind: "boolean", default: false },
-    { name: "onChange", kind: "event" },
+    { name: "onChange", kind: "event", required: true },
   ],
 } satisfies ControlMeta<TextInputProperties>;

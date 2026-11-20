@@ -6,7 +6,7 @@ export default {
   tag: "jc-listbox",
   category: "Data-aware",
   properties: [
-    { name: "dataSet", kind: "dataSet", bindsTo: "dataSet" },
-    { name: "display", kind: "field", bindsTo: "field" },
+    { name: "dataSet", kind: "dataSet", bindsTo: "dataSet", required: true },
+    { name: "display", kind: "field", bindsTo: "field", required: true },
   ],
 } satisfies ControlMeta<ListBoxProperties<{ id: string }>>;

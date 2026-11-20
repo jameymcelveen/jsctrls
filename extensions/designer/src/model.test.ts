@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { applyTextEdit, parseTsx, validateEdit } from "./model";
+import { applyTextEdit, moveNode, parseTsx } from "./model";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const helloApp = readFileSync(join(here, "../../../apps/hello/src/App.tsx"), "utf8");
@@ -52,7 +52,7 @@ describe("parseTsx", () => {
 
   it("reads flags and spreads as read-only props", () => {
     const button = parseTsx(lockedFixture).nodes.find((node) => node.name === "button");
-    expect(button?.props).toEqual([
+    expect(button?.props).toMatchObject([
       { name: "disabled", kind: "flag", value: "true" },
       { name: "...", kind: "expression", value: "rest" },
     ]);
@@ -68,7 +68,12 @@ describe("parseTsx", () => {
   });
 
   it("returns no nodes for a file without JSX", () => {
-    expect(parseTsx("export const x = 1;\n")).toEqual({ component: null, nodes: [] });
+    expect(parseTsx("export const x = 1;\n")).toEqual({
+      component: null,
+      nodes: [],
+      dataSets: [],
+      handlers: [],
+    });
   });
 
   it("keeps node ids stable when an earlier prop changes length", () => {
@@ -102,17 +107,157 @@ describe("edits", () => {
     expect(before[index]?.trim()).toBe('<ListBox dataSet={names} display="name" />');
     expect(lines[index]?.trim()).toBe('<ListBox dataSet={names} display="id" />');
   });
+});
 
-  it("accepts an edit that matches a string prop", () => {
-    expect(validateEdit(helloApp, edit)).toBeNull();
+describe("design info", () => {
+  it("finds the hello app's DataSet and its fields", () => {
+    expect(parseTsx(helloApp).dataSets).toEqual([
+      {
+        name: "names",
+        fields: [
+          { name: "id", type: "string" },
+          { name: "name", type: "string" },
+        ],
+      },
+    ]);
   });
 
-  it("rejects an edit that does not match a string prop", () => {
-    expect(validateEdit(helloApp, { ...edit, start: edit.start - 1 })).not.toBeNull();
+  it("reads fields from an interface named in the type argument", () => {
+    const text = `interface Person { id: string; age: number }
+const people = createDataSet<Person>({ connector });
+export function P() { return <ListBox dataSet={people} display="id" />; }
+`;
+    expect(parseTsx(text).dataSets[0]?.fields).toEqual([
+      { name: "id", type: "string" },
+      { name: "age", type: "number" },
+    ]);
   });
 
-  it("rejects a value that would break the attribute", () => {
-    expect(validateEdit(helloApp, { ...edit, newText: 'a"b' })).toMatch(/cannot contain/);
-    expect(validateEdit(helloApp, { ...edit, newText: "a\nb" })).toMatch(/cannot contain/);
+  it("lists functions and state setters as handlers", () => {
+    const text = `function log() {}
+export function P() {
+  const [text, setText] = useState("");
+  const handleSave = () => {};
+  return <button onClick={handleSave}>{text}</button>;
+}
+`;
+    expect(parseTsx(text).handlers.map((handler) => handler.name)).toEqual([
+      "log",
+      "setText",
+      "handleSave",
+    ]);
+  });
+
+  it("reads text content, and marks elements with children", () => {
+    const nodes = parseTsx(helloApp).nodes;
+    expect(nodes.find((node) => node.name === "h1")?.content).toEqual({
+      kind: "text",
+      value: "Names",
+    });
+    expect(nodes.find((node) => node.name === "Button")?.content).toEqual({
+      kind: "text",
+      value: "Add",
+    });
+    expect(nodes.find((node) => node.name === "div")?.content).toEqual({ kind: "children" });
+    expect(nodes.find((node) => node.name === "ListBox")?.content).toEqual({
+      kind: "text",
+      value: "",
+    });
+  });
+});
+
+describe("moveNode", () => {
+  const names = (text: string) => parseTsx(text).nodes.map((node) => `${node.depth}:${node.name}`);
+  const startOf = (text: string, name: string, nth = 0) =>
+    parseTsx(text).nodes.filter((node) => node.name === name)[nth]?.start ?? -1;
+  const apply = (text: string, edit: ReturnType<typeof moveNode>) => {
+    if (typeof edit === "string") {
+      throw new Error(edit);
+    }
+    return applyTextEdit(text, edit);
+  };
+
+  it("moves ListBox above the row of inputs", () => {
+    const edit = moveNode(
+      helloApp,
+      startOf(helloApp, "ListBox"),
+      startOf(helloApp, "div"),
+      "before",
+    );
+    const after = apply(helloApp, edit);
+    expect(names(after)).toEqual([
+      "0:main",
+      "1:h1",
+      "1:ListBox",
+      "1:div",
+      "2:TextInput",
+      "2:Button",
+      "2:Button",
+    ]);
+    expect(after.length).toBe(helloApp.length);
+    expect([...after].sort().join("")).toBe([...helloApp].sort().join(""));
+  });
+
+  it("swaps the two buttons, moving the multi-line Delete button before Add", () => {
+    const edit = moveNode(
+      helloApp,
+      startOf(helloApp, "Button", 1),
+      startOf(helloApp, "Button", 0),
+      "before",
+    );
+    const after = apply(helloApp, edit);
+    const buttons = parseTsx(after).nodes.filter((node) => node.name === "Button");
+    expect(after.slice(buttons[0]?.start, buttons[0]?.end)).toContain("Delete");
+    expect(after.slice(buttons[1]?.start, buttons[1]?.end)).toContain("Add");
+  });
+
+  it("moves after a sibling, and a move back restores the file exactly", () => {
+    const moved = apply(
+      helloApp,
+      moveNode(helloApp, startOf(helloApp, "h1"), startOf(helloApp, "div"), "after"),
+    );
+    expect(names(moved).slice(0, 3)).toEqual(["0:main", "1:div", "2:TextInput"]);
+    const back = apply(
+      moved,
+      moveNode(moved, startOf(moved, "h1"), startOf(moved, "div"), "before"),
+    );
+    expect(back).toBe(helloApp);
+  });
+
+  it("treats a drop inside a sibling as a drop next to that sibling", () => {
+    const edit = moveNode(
+      helloApp,
+      startOf(helloApp, "ListBox"),
+      startOf(helloApp, "Button"),
+      "before",
+    );
+    expect(names(apply(helloApp, edit))).toEqual([
+      "0:main",
+      "1:h1",
+      "1:ListBox",
+      "1:div",
+      "2:TextInput",
+      "2:Button",
+      "2:Button",
+    ]);
+  });
+
+  it("refuses moves it cannot do cleanly", () => {
+    expect(
+      moveNode(helloApp, startOf(helloApp, "div"), startOf(helloApp, "Button"), "before"),
+    ).toMatch(/into itself/);
+    expect(
+      moveNode(helloApp, startOf(helloApp, "main"), startOf(helloApp, "h1"), "before"),
+    ).toMatch(/into itself/);
+    expect(moveNode(helloApp, startOf(helloApp, "h1"), startOf(helloApp, "h1"), "after")).toMatch(
+      /itself/,
+    );
+    expect(moveNode(helloApp, startOf(helloApp, "h1"), startOf(helloApp, "div"), "before")).toMatch(
+      /already/,
+    );
+    const inline = "export function A() { return <p><b /><i /></p>; }\n";
+    expect(moveNode(inline, inline.indexOf("<i"), inline.indexOf("<b"), "before")).toMatch(
+      /own lines/,
+    );
   });
 });

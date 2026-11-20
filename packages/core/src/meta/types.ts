@@ -9,6 +9,8 @@ export interface PublishedProperty<Props> {
   readonly default?: string | number | boolean;
   /** For `enum`: the allowed values. */
   readonly options?: readonly string[];
+  /** The control's props type requires it, so the palette writes it when inserting the control. */
+  readonly required?: boolean;
   /** Set when the property binds to a DataSet or to a field of the bound DataSet. */
   readonly bindsTo?: "dataSet" | "field";
 }

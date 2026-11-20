@@ -1,7 +1,7 @@
 {
   "name": "jsctrls-designer",
   "displayName": "jsctrls Designer",
-  "description": "Visual designer for React .tsx files built with jsctrls. Spike: structure and inspector.",
+  "description": "Visual designer for React .tsx files built with jsctrls: canvas, palette and object inspector.",
   "version": "0.0.1",
   "private": true,
   "publisher": "jameymcelveen",
@@ -45,6 +45,16 @@
           "group": "navigation"
         }
       ]
+    },
+    "configuration": {
+      "title": "jsctrls Designer",
+      "properties": {
+        "jsctrls.designer.devServerUrl": {
+          "type": "string",
+          "default": "http://localhost:5173",
+          "description": "URL of the app's Vite dev server. The canvas shows this page with the jsctrls Vite plugin's design overlay."
+        }
+      }
     }
   },
   "scripts": {
@@ -54,6 +64,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@jsctrls/core": "workspace:*",
     "@jsctrls/react": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:",
