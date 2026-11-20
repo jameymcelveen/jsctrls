@@ -302,6 +302,9 @@ importers:
 
   extensions/designer:
     dependencies:
+      '@jsctrls/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@jsctrls/react':
         specifier: workspace:*
         version: link:../../packages/react

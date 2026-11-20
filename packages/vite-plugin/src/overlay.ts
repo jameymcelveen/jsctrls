@@ -3,7 +3,6 @@
  * (an iframe whose URL has ?jc-design). It never runs in a normal page load.
  *
  * Messages to the designer:   { source: "jsctrls-canvas", type: "select", src }
- *                             { source: "jsctrls-canvas", type: "move", src, target, position }
  * Messages from the designer: { source: "jsctrls-designer", type: "highlight", src | null }
  *                             { source: "jsctrls-designer", type: "focus", file }
  *
@@ -100,86 +99,14 @@ export const OVERLAY_SCRIPT = String.raw`
     });
   }
 
-  const dropLine = box("#e0712c", false);
-  dropLine.style.borderWidth = "2px";
-  let drag = null;
-
-  function rectOf(src) {
-    const nodes = nodesFor(src);
-    if (nodes.length === 0) return null;
-    let top = Infinity, left = Infinity, right = -Infinity, bottom = -Infinity;
-    for (const n of nodes) {
-      const r = n.getBoundingClientRect();
-      top = Math.min(top, r.top); left = Math.min(left, r.left);
-      right = Math.max(right, r.right); bottom = Math.max(bottom, r.bottom);
-    }
-    return { top, left, right, bottom };
-  }
-
-  // Where a drop at (x, y) lands: before or after the element under the pointer.
-  // Siblings laid out side by side split on x; stacked ones split on y.
-  function dropAt(x, y) {
-    const el = elementAt(x, y);
-    const target = el && srcOf(el);
-    if (!target || target === drag.src) return null;
-    const t = rectOf(target);
-    const s = drag.rect;
-    if (!t) return null;
-    const sideBySide = Math.min(t.bottom, s.bottom) - Math.max(t.top, s.top) > 0.5 * Math.min(t.bottom - t.top, s.bottom - s.top);
-    const position = sideBySide
-      ? (x < (t.left + t.right) / 2 ? "before" : "after")
-      : (y < (t.top + t.bottom) / 2 ? "before" : "after");
-    const line = sideBySide
-      ? { top: t.top, left: position === "before" ? t.left - 2 : t.right - 2, width: 4, height: t.bottom - t.top }
-      : { top: position === "before" ? t.top - 2 : t.bottom - 2, left: t.left, width: t.right - t.left, height: 4 };
-    return { target, position, line };
-  }
-
-  glass.addEventListener("mousedown", (event) => {
-    const el = elementAt(event.clientX, event.clientY);
-    const src = el && srcOf(el);
-    drag = src ? { src, x: event.clientX, y: event.clientY, active: false, rect: rectOf(src) } : null;
-  });
-
   glass.addEventListener("mousemove", (event) => {
-    if (drag && !drag.active && Math.hypot(event.clientX - drag.x, event.clientY - drag.y) > 4) {
-      drag.active = true;
-      glass.style.cursor = "grabbing";
-    }
-    if (drag && drag.active) {
-      const drop = dropAt(event.clientX, event.clientY);
-      drag.drop = drop;
-      place(hoverBox, drop && drop.target);
-      if (drop) {
-        Object.assign(dropLine.style, {
-          display: "block", top: drop.line.top + "px", left: drop.line.left + "px",
-          width: drop.line.width + "px", height: drop.line.height + "px", background: "#e0712c",
-        });
-      } else {
-        dropLine.style.display = "none";
-      }
-      return;
-    }
     const el = elementAt(event.clientX, event.clientY);
     place(hoverBox, el && srcOf(el));
   });
 
   glass.addEventListener("mouseleave", () => place(hoverBox, null));
 
-  glass.addEventListener("mouseup", (event) => {
-    const current = drag;
-    drag = null;
-    glass.style.cursor = "default";
-    dropLine.style.display = "none";
-    if (current && current.active) {
-      if (current.drop) {
-        window.parent.postMessage({
-          source: "jsctrls-canvas", type: "move",
-          src: current.src, target: current.drop.target, position: current.drop.position,
-        }, "*");
-      }
-      return;
-    }
+  glass.addEventListener("click", (event) => {
     const el = elementAt(event.clientX, event.clientY);
     const src = el && srcOf(el);
     if (src) {

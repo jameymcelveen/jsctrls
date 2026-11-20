@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { applyTextEdit, moveNode, parseTsx, validateEdit } from "./model";
+import { applyTextEdit, moveNode, parseTsx } from "./model";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const helloApp = readFileSync(join(here, "../../../apps/hello/src/App.tsx"), "utf8");
@@ -52,7 +52,7 @@ describe("parseTsx", () => {
 
   it("reads flags and spreads as read-only props", () => {
     const button = parseTsx(lockedFixture).nodes.find((node) => node.name === "button");
-    expect(button?.props).toEqual([
+    expect(button?.props).toMatchObject([
       { name: "disabled", kind: "flag", value: "true" },
       { name: "...", kind: "expression", value: "rest" },
     ]);
@@ -68,7 +68,12 @@ describe("parseTsx", () => {
   });
 
   it("returns no nodes for a file without JSX", () => {
-    expect(parseTsx("export const x = 1;\n")).toEqual({ component: null, nodes: [] });
+    expect(parseTsx("export const x = 1;\n")).toEqual({
+      component: null,
+      nodes: [],
+      dataSets: [],
+      handlers: [],
+    });
   });
 
   it("keeps node ids stable when an earlier prop changes length", () => {
@@ -102,18 +107,62 @@ describe("edits", () => {
     expect(before[index]?.trim()).toBe('<ListBox dataSet={names} display="name" />');
     expect(lines[index]?.trim()).toBe('<ListBox dataSet={names} display="id" />');
   });
+});
 
-  it("accepts an edit that matches a string prop", () => {
-    expect(validateEdit(helloApp, edit)).toBeNull();
+describe("design info", () => {
+  it("finds the hello app's DataSet and its fields", () => {
+    expect(parseTsx(helloApp).dataSets).toEqual([
+      {
+        name: "names",
+        fields: [
+          { name: "id", type: "string" },
+          { name: "name", type: "string" },
+        ],
+      },
+    ]);
   });
 
-  it("rejects an edit that does not match a string prop", () => {
-    expect(validateEdit(helloApp, { ...edit, start: edit.start - 1 })).not.toBeNull();
+  it("reads fields from an interface named in the type argument", () => {
+    const text = `interface Person { id: string; age: number }
+const people = createDataSet<Person>({ connector });
+export function P() { return <ListBox dataSet={people} display="id" />; }
+`;
+    expect(parseTsx(text).dataSets[0]?.fields).toEqual([
+      { name: "id", type: "string" },
+      { name: "age", type: "number" },
+    ]);
   });
 
-  it("rejects a value that would break the attribute", () => {
-    expect(validateEdit(helloApp, { ...edit, newText: 'a"b' })).toMatch(/cannot contain/);
-    expect(validateEdit(helloApp, { ...edit, newText: "a\nb" })).toMatch(/cannot contain/);
+  it("lists functions and state setters as handlers", () => {
+    const text = `function log() {}
+export function P() {
+  const [text, setText] = useState("");
+  const handleSave = () => {};
+  return <button onClick={handleSave}>{text}</button>;
+}
+`;
+    expect(parseTsx(text).handlers.map((handler) => handler.name)).toEqual([
+      "log",
+      "setText",
+      "handleSave",
+    ]);
+  });
+
+  it("reads text content, and marks elements with children", () => {
+    const nodes = parseTsx(helloApp).nodes;
+    expect(nodes.find((node) => node.name === "h1")?.content).toEqual({
+      kind: "text",
+      value: "Names",
+    });
+    expect(nodes.find((node) => node.name === "Button")?.content).toEqual({
+      kind: "text",
+      value: "Add",
+    });
+    expect(nodes.find((node) => node.name === "div")?.content).toEqual({ kind: "children" });
+    expect(nodes.find((node) => node.name === "ListBox")?.content).toEqual({
+      kind: "text",
+      value: "",
+    });
   });
 });
 

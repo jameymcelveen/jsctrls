@@ -1,4 +1,5 @@
-import type { DesignModel, MovePosition, TextEdit } from "./model";
+import type { ControlName, PropValue } from "./edits";
+import type { DesignModel } from "./model";
 
 /** Host to webview. */
 export type HostMessage =
@@ -9,18 +10,43 @@ export type HostMessage =
       readonly fileName: string;
       /** Dev server page the canvas shows. */
       readonly canvasUrl: string;
+      /** Start offset of an element to select, after an insert. */
+      readonly select?: number;
     } & DesignModel)
   | { readonly type: "error"; readonly message: string };
 
-/** Webview to host. */
+/**
+ * Webview to host. Elements are named by their start offset in the version
+ * the webview last saw; the host drops a message made against an older one.
+ */
 export type WebviewMessage =
   | { readonly type: "ready" }
-  | ({ readonly type: "edit"; readonly version: number } & TextEdit)
   | {
-      readonly type: "move";
+      readonly type: "setProp";
       readonly version: number;
-      /** Start offsets of the dragged node and the sibling it was dropped on. */
-      readonly from: number;
-      readonly to: number;
-      readonly position: MovePosition;
-    };
+      readonly node: number;
+      readonly name: string;
+      /** null removes the prop. */
+      readonly value: PropValue | null;
+    }
+  | {
+      readonly type: "setContent";
+      readonly version: number;
+      readonly node: number;
+      readonly text: string;
+    }
+  | {
+      readonly type: "createHandler";
+      readonly version: number;
+      readonly node: number;
+      readonly event: string;
+    }
+  | {
+      readonly type: "insert";
+      readonly version: number;
+      /** The selected element, or null for the component's root. */
+      readonly anchor: number | null;
+      readonly control: ControlName;
+    }
+  /** Show this offset of the file in the code editor. */
+  | { readonly type: "reveal"; readonly offset: number };

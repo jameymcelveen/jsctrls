@@ -1,7 +1,7 @@
 {
   "name": "jsctrls-designer",
   "displayName": "jsctrls Designer",
-  "description": "Visual designer for React .tsx files built with jsctrls. Spike: structure and inspector.",
+  "description": "Visual designer for React .tsx files built with jsctrls: canvas, palette and object inspector.",
   "version": "0.0.1",
   "private": true,
   "publisher": "jameymcelveen",
@@ -64,6 +64,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@jsctrls/core": "workspace:*",
     "@jsctrls/react": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:",

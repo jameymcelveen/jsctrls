@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
-import { moveNode, parseTsx, validateEdit, type TextEdit } from "./model";
+import { createHandler, insertControl, setContent, setProp, type Change } from "./edits";
+import { parseTsx } from "./model";
 import type { HostMessage, WebviewMessage } from "./protocol";
 
 const VIEW_TYPE = "jsctrls.designer";
@@ -39,6 +40,8 @@ class DesignerProvider implements vscode.CustomTextEditorProvider {
     const post = (message: HostMessage) => {
       void panel.webview.postMessage(message);
     };
+    // An element to select once the edit that creates it lands.
+    let pendingSelect: number | undefined;
     const sendModel = () => {
       try {
         post({
@@ -47,7 +50,9 @@ class DesignerProvider implements vscode.CustomTextEditorProvider {
           fileName: document.fileName,
           canvasUrl: canvasUrl(),
           ...parseTsx(document.getText(), document.fileName),
+          ...(pendingSelect === undefined ? {} : { select: pendingSelect }),
         });
+        pendingSelect = undefined;
       } catch (error) {
         post({ type: "error", message: `Could not read this file: ${String(error)}` });
       }
@@ -62,44 +67,70 @@ class DesignerProvider implements vscode.CustomTextEditorProvider {
       changes.dispose();
     });
 
+    const reveal = async (offset: number) => {
+      const position = document.positionAt(offset);
+      await vscode.window.showTextDocument(document, {
+        viewColumn: vscode.ViewColumn.Beside,
+        selection: new vscode.Range(position, position),
+      });
+    };
+
     panel.webview.onDidReceiveMessage(async (message: WebviewMessage) => {
       if (message.type === "ready") {
         sendModel();
+        return;
+      }
+      if (message.type === "reveal") {
+        await reveal(message.offset);
         return;
       }
       if (message.version !== document.version) {
         sendModel();
         return;
       }
-      let edit: TextEdit = { start: 0, end: 0, newText: "" };
-      let problem: string | null;
-      if (message.type === "move") {
-        const moved = moveNode(document.getText(), message.from, message.to, message.position);
-        if (typeof moved === "string") {
-          problem = moved;
-        } else {
-          edit = moved;
-          problem = null;
-        }
-      } else {
-        edit = { start: message.start, end: message.end, newText: message.newText };
-        problem = validateEdit(document.getText(), edit);
+      const text = document.getText();
+      let change: Change | string;
+      switch (message.type) {
+        case "setProp":
+          change = setProp(text, message.node, message.name, message.value);
+          break;
+        case "setContent":
+          change = setContent(text, message.node, message.text);
+          break;
+        case "createHandler":
+          change = createHandler(text, message.node, message.event);
+          break;
+        case "insert":
+          change = insertControl(text, message.anchor, message.control);
+          break;
       }
-      if (problem) {
-        post({ type: "error", message: problem });
+      if (typeof change === "string") {
+        post({ type: "error", message: change });
         sendModel();
         return;
       }
-      const change = new vscode.WorkspaceEdit();
-      change.replace(
-        document.uri,
-        new vscode.Range(document.positionAt(edit.start), document.positionAt(edit.end)),
-        edit.newText,
-      );
-      const applied = await vscode.workspace.applyEdit(change);
+      if (change.edits.length === 0) {
+        return;
+      }
+      // One WorkspaceEdit, so one undo puts the whole change back.
+      const edit = new vscode.WorkspaceEdit();
+      for (const { start, end, newText } of change.edits) {
+        edit.replace(
+          document.uri,
+          new vscode.Range(document.positionAt(start), document.positionAt(end)),
+          newText,
+        );
+      }
+      pendingSelect = change.select;
+      const applied = await vscode.workspace.applyEdit(edit);
       if (!applied) {
+        pendingSelect = undefined;
         post({ type: "error", message: "VS Code did not apply the edit." });
         sendModel();
+        return;
+      }
+      if (change.reveal !== undefined) {
+        await reveal(change.reveal);
       }
     });
   }

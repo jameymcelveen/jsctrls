@@ -72,6 +72,81 @@ body {
   color: var(--vscode-list-activeSelectionForeground);
 }
 
+.designer-palette {
+  flex: 1 1 100%;
+}
+
+.designer-palette-groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+}
+
+.designer-palette-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.designer-palette-label {
+  margin-right: 4px;
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground);
+}
+
+.designer-palette .designer-note {
+  margin: 6px 0 0;
+  font-size: 11px;
+}
+
+/* jsctrls Buttons, themed as VS Code secondary buttons. */
+.designer .designer-palette button,
+.designer .designer-value button {
+  padding: 2px 10px;
+  color: var(--vscode-button-secondaryForeground);
+  background: var(--vscode-button-secondaryBackground);
+  border: 1px solid var(--vscode-button-border, transparent);
+  border-radius: 2px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.designer .designer-palette button:hover,
+.designer .designer-value button:hover {
+  background: var(--vscode-button-secondaryHoverBackground);
+}
+
+.designer .designer-value button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.designer-inspector {
+  flex: 1 1 300px;
+}
+
+.designer-tabs {
+  display: flex;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--vscode-panel-border, var(--vscode-widget-border));
+}
+
+.designer .designer-tab {
+  padding: 4px 10px;
+  color: var(--vscode-descriptionForeground);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.designer .designer-tab[aria-selected="true"] {
+  color: var(--vscode-foreground);
+  border-bottom-color: var(--vscode-focusBorder);
+}
+
 .designer-props {
   display: grid;
   grid-template-columns: minmax(80px, max-content) minmax(0, 1fr);
@@ -80,13 +155,35 @@ body {
   margin: 0;
 }
 
-.designer-props dt,
-.designer-props dd {
-  margin: 0;
+.designer-props > label {
+  color: var(--vscode-descriptionForeground);
 }
 
-.designer-props input {
-  width: 100%;
+/* Props written in the file, as Delphi shows non-default values in bold. */
+.designer-props > label.designer-set {
+  color: var(--vscode-foreground);
+  font-weight: 600;
+}
+
+.designer-required {
+  color: var(--vscode-descriptionForeground);
+}
+
+.designer-value {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  min-width: 0;
+}
+
+.designer-value > input:not([type="checkbox"]),
+.designer-value > select {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.designer-props input:not([type="checkbox"]),
+.designer-props select {
   box-sizing: border-box;
   padding: 3px 6px;
   color: var(--vscode-input-foreground);
@@ -95,8 +192,37 @@ body {
   font: inherit;
 }
 
-.designer-props input:focus {
+.designer-props > input {
+  width: 100%;
+}
+
+.designer-props select {
+  color: var(--vscode-dropdown-foreground);
+  background: var(--vscode-dropdown-background);
+  border-color: var(--vscode-dropdown-border, transparent);
+}
+
+.designer-props input:focus,
+.designer-props select:focus {
   outline: 1px solid var(--vscode-focusBorder);
+}
+
+.designer .designer-code-input {
+  font-family: var(--vscode-editor-font-family);
+}
+
+.designer .designer-clear {
+  padding: 0 6px;
+  color: var(--vscode-descriptionForeground);
+  background: none;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.designer .designer-clear:hover {
+  color: var(--vscode-foreground);
+  background: none;
 }
 
 .designer-code {
